@@ -105,26 +105,6 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org3.example.com
               Port: 11051
-    - &Org4
-        Name: Org4MSP
-        ID: Org4MSP
-        MSPDir: crypto-config/peerOrganizations/org4.example.com/msp
-        Policies:
-            Readers:
-                Type: Signature
-                Rule: "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
-            Writers:
-                Type: Signature
-                Rule: "OR('Org4MSP.admin', 'Org4MSP.client')"
-            Admins:
-                Type: Signature
-                Rule: "OR('Org4MSP.admin')"
-            Endorsement:
-                Type: Signature
-                Rule: "OR('Org4MSP.peer')"
-        AnchorPeers:
-            - Host: peer0.org4.example.com
-              Port: 13051
 
 ################################################################################
 #
@@ -323,7 +303,6 @@ Profiles:
                 - *Org1
                 - *Org2
                 - *Org3
-                - *Org4
 
             Capabilities:
                 <<: *ApplicationCapabilities
@@ -378,5 +357,4 @@ Profiles:
                 - *Org1
                 - *Org2
                 - *Org3
-                - *Org4
 
