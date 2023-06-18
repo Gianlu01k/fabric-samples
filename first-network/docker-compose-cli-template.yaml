@@ -7,15 +7,7 @@ version: '2'
 
 volumes:
   orderer.example.com:
-  peer0.org1.example.com:
-  peer1.org1.example.com:
-  peer0.org2.example.com:
-  peer1.org2.example.com:
-  peer0.org3.example.com:
-  peer1.org3.example.com:
-  peer0.org4.example.com:
-  peer1.org4.example.com:
-
+ORGS_AND_PEERS_VOLUMES
 
 networks:
   byfn:
@@ -30,71 +22,7 @@ services:
     networks:
       - byfn
 
-  peer0.org1.example.com:
-    container_name: peer0.org1.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.org1.example.com
-    networks:
-      - byfn
-
-  peer1.org1.example.com:
-    container_name: peer1.org1.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer1.org1.example.com
-    networks:
-      - byfn
-
-  peer0.org2.example.com:
-    container_name: peer0.org2.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.org2.example.com
-    networks:
-      - byfn
-
-  peer1.org2.example.com:
-    container_name: peer1.org2.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer1.org2.example.com
-    networks:
-      - byfn
-
-  peer0.org3.example.com:
-    container_name: peer0.org3.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.org3.example.com
-    networks:
-      - byfn
-
-  peer1.org3.example.com:
-    container_name: peer1.org3.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer1.org3.example.com
-    networks:
-      - byfn
-
-  peer0.org4.example.com:
-    container_name: peer0.org4.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.org4.example.com
-    networks:
-      - byfn
-
-  peer1.org4.example.com:
-    container_name: peer1.org4.example.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer1.org4.example.com
-    networks:
-      - byfn
-
-
+ORGS_AND_PEERS_SERVICES
 
   cli:
     container_name: cli
@@ -124,14 +52,6 @@ services:
         - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
     depends_on:
       - orderer.example.com
-      - peer0.org1.example.com
-      - peer1.org1.example.com
-      - peer0.org2.example.com
-      - peer1.org2.example.com
-      - peer0.org3.example.com
-      - peer1.org3.example.com
-      - peer0.org4.example.com
-      - peer1.org4.example.com
-
+ORGS_AND_PEERS_DEP
     networks:
       - byfn
