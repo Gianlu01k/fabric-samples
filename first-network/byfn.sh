@@ -384,19 +384,22 @@ function generateChannelArtifacts() {
   fi
 
   NEW_LINES1=""
+  NEW_LINES2=""
+  NEW_LINES3=""
 
   i=1
-
+  P0PORT=7051
   while [ $i -le $N_ORG ]
   do
-   P0PORT=7051
-   NEW_LINES1+="\n    - &Org$i\n        Name: Org${i}MSP\n        ID: Org${i}MSP\n        MSPDir: crypto-config/peerOrganizations/org${i}.example.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.peer', 'Org${i}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$i.example.com\n              Port: $P0PORT"
+   
+  NEW_LINES1+="\n    - \&Org$i\n        Name: Org${i}MSP\n        ID: Org${i}MSP\n        MSPDir: crypto-config/peerOrganizations/org${i}.example.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.peer', 'Org${i}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$i.example.com\n              Port: $P0PORT"
+  NEW_LINES2+="                - *Org$i\n"
+  NEW_LINES3+="                - *Org$i\n"
 
    i=$((i+1))
    P0PORT=$((P0PORT+2000))
   done
-
-  sed -e "s/ORGANIZATIONS-ORGS/$NEW_LINES1/g" configtx-template.yaml > configtx.yaml
+  sed -e "s@ORGANIZATIONS-ORGS@$NEW_LINES1@g" -e "s@PROFILE2ORGS@$NEW_LINES2@g" -e "s@PROFILEMULTI@$NEW_LINES3@g" configtx-template.yaml > configtx.yaml
 
   echo "##########################################################"
   echo "#########  Generating Orderer Genesis block ##############"
@@ -425,32 +428,23 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
-  echo
-  echo "#################################################################"
-  echo "#######    Generating anchor peer update for Org1MSP   ##########"
-  echo "#################################################################"
-  set -x
-  configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate anchor peer update for Org1MSP..."
-    exit 1
-  fi
-
-  echo
-  echo "#################################################################"
-  echo "#######    Generating anchor peer update for Org2MSP   ##########"
-  echo "#################################################################"
-  set -x
-  configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
-    ./channel-artifacts/Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate anchor peer update for Org2MSP..."
-    exit 1
-  fi
+  i=1
+  while [ $i -le $N_ORG ]
+  do
+    echo
+    echo "#################################################################"
+    echo "#######    Generating anchor peer update for Org${i}MSP   ##########"
+    echo "#################################################################"
+    set -x
+    configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org${i}MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org${i}MSP
+    res=$?
+    set +x
+    if [ $res -ne 0 ]; then
+      echo "Failed to generate anchor peer update for Org${i}MSP..."
+      exit 1
+    fi
+    i=$((i+1))
+  done
   echo
 }
 

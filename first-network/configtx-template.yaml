@@ -240,7 +240,7 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-                PROFILE2ORGS
+PROFILE2ORGS
             Capabilities:
                 <<: *ApplicationCapabilities
 
@@ -291,4 +291,4 @@ Profiles:
         Consortiums:
             SampleConsortium:
                 Organizations:
-                PROFILEMULTI
+PROFILEMULTI
