@@ -28,6 +28,9 @@
 
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
+
+N_ORG="$2"
+
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
@@ -305,7 +308,17 @@ function generateCerts() {
   echo "##### Generate certificates using cryptogen tool #########"
   echo "##########################################################"
 
-  NEW_LINES="  \n- Name: Org1\n    Domain: org1.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1\n  - Name: Org2\n    Domain: org2.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1"
+  NEW_LINES=""
+
+  i=1
+
+  while [ $i -le $N_ORG ]
+  do
+
+   NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1\n"
+   
+   i=$((i+1))
+  done
 
   sed -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
 
@@ -322,7 +335,7 @@ function generateCerts() {
   fi
   echo
   echo "Generate CCP files for Org1 and Org2"
-  ./ccp-generate.sh
+  ./ccp-generate.sh $N_ORG
 }
 
 # The `configtxgen tool is used to create four artifacts: orderer **bootstrap
@@ -370,11 +383,27 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
+  NEW_LINES1=""
+
+  i=1
+
+  while [ $i -le $N_ORG ]
+  do
+   P0PORT=7051
+   NEW_LINES1+="\n    - &Org$i\n        Name: Org${i}MSP\n        ID: Org${i}MSP\n        MSPDir: crypto-config/peerOrganizations/org${i}.example.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.peer', 'Org${i}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$i.example.com\n              Port: $P0PORT"
+
+   i=$((i+1))
+   P0PORT=$((P0PORT+2000))
+  done
+
+  sed -e "s/ORGANIZATIONS-ORGS/$NEW_LINES1/g" configtx-template.yaml > configtx.yaml
+
   echo "##########################################################"
   echo "#########  Generating Orderer Genesis block ##############"
   echo "##########################################################"
   # Note: For some unknown reason (at least for now) the block file can't be
   # named orderer.genesis.block or the orderer will fail to launch!
+
   set -x
   configtxgen -profile SampleMultiNodeEtcdRaft -channelID byfn-sys-channel -outputBlock ./channel-artifacts/genesis.block
   res=$?
@@ -469,7 +498,7 @@ else
   exit 1
 fi
 
-while getopts "h?c:t:d:s:l:i:anv" opt; do
+while getopts "h?c:t:d:s:l:i:anv:o" opt; do
   case "$opt" in
   h | \?)
     printHelp
@@ -501,6 +530,9 @@ while getopts "h?c:t:d:s:l:i:anv" opt; do
     ;;
   v)
     VERBOSE=true
+    ;;
+  o)
+    N_ORG="$2"
     ;;
   esac
 done
