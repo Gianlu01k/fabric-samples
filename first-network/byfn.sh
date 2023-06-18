@@ -30,6 +30,7 @@
 # this may be commented out to resolve installed version of tools if desired
 
 N_ORG="$2"
+N_ORD="$3"
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
@@ -198,6 +199,23 @@ function networkUp() {
 
   sed -e "s@ORGS_AND_PEERS_BASE@$NEW_LINES1@g" base/docker-compose-base-template.yaml > base/docker-compose-base.yaml
 
+  NEW_ORDS_LINES1=""
+  NEW_ORDS_LINES2=""
+  O0PORT=7050
+
+  j=2
+
+  while [ $j -le $N_ORD ]
+  do
+    O0PORT=$((O0PORT+1000))
+     NEW_ORDS_LINES1+="  orderer$j.example.com:\n"
+     NEW_ORDS_LINES2+="  orderer$j.example.com:\n    extends:\n      file: base/peer-base.yaml\n      service: orderer-base\n    environment:\n      - ORDERER_GENERAL_LISTENPORT=$O0PORT\n    container_name: orderer$j.example.com\n    networks:\n      - byfn\n    volumes:\n      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block\n      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/msp:/var/hyperledger/orderer/msp\n      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/:/var/hyperledger/orderer/tls\n      - orderer$j.example.com:/var/hyperledger/production/orderer\n    ports:\n      - $O0PORT:$O0PORT\n\n"
+   j=$((j+1))
+  done
+
+  sed -e "s@ORDS_VOLUMES@$NEW_ORDS_LINES1@g" -e "s@ORDS_SERVICES@$NEW_ORDS_LINES2@g" docker-compose-etcdraft2-template.yaml > docker-compose-etcdraft2.yaml
+
+
   COMPOSE_FILES="-f ${COMPOSE_FILE} -f ${COMPOSE_FILE_RAFT2}"
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
@@ -349,18 +367,29 @@ function generateCerts() {
   echo "##########################################################"
 
   NEW_LINES=""
+  NEW_ORDS_LINES=""
 
   i=1
+  j=2
+
+  while [ $j -le $N_ORD ]
+  do
+
+   NEW_ORDS_LINES+="      - Hostname: orderer$j\n" 
+
+   j=$((j+1)) 
+
+  done
 
   while [ $i -le $N_ORG ]
   do
 
    NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1\n"
-   
+
    i=$((i+1))
   done
 
-  sed -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
+  sed -e "s/CREATE_ORDS/$NEW_ORDS_LINES/g" -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
 
   if [ -d "crypto-config" ]; then
     rm -Rf crypto-config
@@ -374,7 +403,7 @@ function generateCerts() {
     exit 1
   fi
   echo
-  echo "Generate CCP files for Org1 and Org2"
+  echo "Generate CCP files for Orgs"
   ./ccp-generate.sh $N_ORG
 }
 
@@ -426,9 +455,22 @@ function generateChannelArtifacts() {
   NEW_LINES1=""
   NEW_LINES2=""
   NEW_LINES3=""
+  NEW_ORDS_LINES1=""
+  NEW_ORDS_LINES2=""
 
   i=1
+  j=2
   P0PORT=7051
+  O0PORT=7050
+
+  while [ $j -le $N_ORD ]
+  do
+    O0PORT=$((O0PORT+1000))
+    NEW_ORDS_LINES1+="                - Host: orderer$j.example.com\n                  Port: $O0PORT\n                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/server.crt\n                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/server.crt\n"  
+    NEW_ORDS_LINES2+="                - orderer$j.example.com:$O0PORT\n"  
+    j=$((j+1))
+  done
+
   while [ $i -le $N_ORG ]
   do
    
@@ -439,7 +481,7 @@ function generateChannelArtifacts() {
    i=$((i+1))
    P0PORT=$((P0PORT+2000))
   done
-  sed -e "s@ORGANIZATIONS-ORGS@$NEW_LINES1@g" -e "s@PROFILE2ORGS@$NEW_LINES2@g" -e "s@PROFILEMULTI@$NEW_LINES3@g" configtx-template.yaml > configtx.yaml
+  sed -e "s@ORDS_DATA@$NEW_ORDS_LINES1@g" -e "s@ORDS_ADDRS@$NEW_ORDS_LINES2@g" -e "s@ORGANIZATIONS-ORGS@$NEW_LINES1@g" -e "s@PROFILE2ORGS@$NEW_LINES2@g" -e "s@PROFILEMULTI@$NEW_LINES3@g" configtx-template.yaml > configtx.yaml
 
   echo "##########################################################"
   echo "#########  Generating Orderer Genesis block ##############"
@@ -532,7 +574,7 @@ else
   exit 1
 fi
 
-while getopts "h?c:t:d:s:l:i:anv:o" opt; do
+while getopts "h?c:t:d:s:l:i:anv:o:or" opt; do
   case "$opt" in
   h | \?)
     printHelp
@@ -567,6 +609,9 @@ while getopts "h?c:t:d:s:l:i:anv:o" opt; do
     ;;
   o)
     N_ORG="$2"
+    ;;
+  or)
+    N_ORD="$3"
     ;;
   esac
 done
