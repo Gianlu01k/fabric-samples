@@ -305,6 +305,10 @@ function generateCerts() {
   echo "##### Generate certificates using cryptogen tool #########"
   echo "##########################################################"
 
+  NEW_LINES="  \n- Name: Org1\n    Domain: org1.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1\n  - Name: Org2\n    Domain: org2.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1"
+
+  sed -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
+
   if [ -d "crypto-config" ]; then
     rm -Rf crypto-config
   fi
