@@ -101,6 +101,13 @@ function networkUp () {
     createConfigTx
   fi
 
+  NEXT_PORT=$((NEXT_PORT+1))
+  NEXT_PORT1=$((NEXT_PORT+1000))
+  NEXT_PORTCHAIN=$((NEXT_PORT+1))
+  NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
+
+  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT1/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-org3-template.yaml > docker-compose-org3.yaml
+
   # start org3 peers
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
       IMAGE_TAG=${IMAGETAG} docker-compose -f $COMPOSE_FILE_ORG3 -f $COMPOSE_FILE_COUCH_ORG3 up -d 2>&1
@@ -115,7 +122,7 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org3 peers join network ##################"
   echo "###############################################################"
-  docker exec Org3cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to have Org3 peers join network"
     exit 1
@@ -149,7 +156,7 @@ function createConfigTx () {
   echo "###############################################################"
   echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG $NEXT_PORT
+  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1
@@ -198,7 +205,12 @@ function generateChannelArtifacts() {
   echo "##########################################################"
   echo "#########  Generating OrgX config material ###############"
   echo "##########################################################"
+
+
   (cd org3-artifacts
+
+  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${PORT}/$NEXT_PORT/g" configtx-template.yaml > configtx.yaml
+  
    export FABRIC_CFG_PATH=$PWD
    set -x
    configtxgen -printOrg Org${NEXT_ORG}MSP > ../channel-artifacts/org${NEXT_ORG}.json
