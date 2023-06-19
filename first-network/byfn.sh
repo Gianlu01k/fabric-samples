@@ -389,6 +389,12 @@ function generateCerts() {
    i=$((i+1))
   done
 
+  touch org-data.txt
+
+  echo $i > org-data.txt
+
+  echo $((7051+N_ORG*2000)) >> org-data.txt
+
   sed -e "s/CREATE_ORDS/$NEW_ORDS_LINES/g" -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
 
   if [ -d "crypto-config" ]; then

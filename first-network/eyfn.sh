@@ -15,6 +15,9 @@
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
+export NEXT_ORG=$(head -n 1 org-data.txt)
+export NEXT_PORT=$(tail -n 1 org-data.txt)
+
 
 # Print the usage message
 function printHelp () {
@@ -97,6 +100,7 @@ function networkUp () {
     generateChannelArtifacts
     createConfigTx
   fi
+
   # start org3 peers
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
       IMAGE_TAG=${IMAGETAG} docker-compose -f $COMPOSE_FILE_ORG3 -f $COMPOSE_FILE_COUCH_ORG3 up -d 2>&1
@@ -143,9 +147,9 @@ function networkDown () {
 function createConfigTx () {
   echo
   echo "###############################################################"
-  echo "####### Generate and submit config tx to add Org3 #############"
+  echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec cli scripts/step1org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG $NEXT_PORT
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1
@@ -165,12 +169,15 @@ function generateCerts (){
   fi
   echo
   echo "###############################################################"
-  echo "##### Generate Org3 certificates using cryptogen tool #########"
+  echo "##### Generate OrgX certificates using cryptogen tool #########"
   echo "###############################################################"
 
   (cd org3-artifacts
+
+   sed -e "s/\${ORG}/$NEXT_ORG/" orgX-crypto.yaml
+
    set -x
-   cryptogen generate --config=./org3-crypto.yaml
+   cryptogen generate --config=./orgX-crypto.yaml
    res=$?
    set +x
    if [ $res -ne 0 ]; then
@@ -189,16 +196,16 @@ function generateChannelArtifacts() {
     exit 1
   fi
   echo "##########################################################"
-  echo "#########  Generating Org3 config material ###############"
+  echo "#########  Generating OrgX config material ###############"
   echo "##########################################################"
   (cd org3-artifacts
    export FABRIC_CFG_PATH=$PWD
    set -x
-   configtxgen -printOrg Org3MSP > ../channel-artifacts/org3.json
+   configtxgen -printOrg Org${NEXT_ORG}MSP > ../channel-artifacts/org${NEXT_ORG}.json
    res=$?
    set +x
    if [ $res -ne 0 ]; then
-     echo "Failed to generate Org3 config material..."
+     echo "Failed to generate Org$NEXT_ORG config material..."
      exit 1
    fi
   )
