@@ -3,9 +3,11 @@
 ## Hyperledger Fabric Samples
 
 To execute the first network:
+
 (```./byfn.sh down```) to remove previous containers from docker
 
 ```./byfn.sh up <#_Orgs_to_create> <#_Orderers_to_create>```
+
 (ex: ```./byfn.sh 3 5``` would create 3 organization (with 2 peers for each one) and 5 orderers)
 
 Please visit the [installation instructions](http://hyperledger-fabric.readthedocs.io/en/latest/install.html)
