@@ -9,20 +9,20 @@ echo "|____/    |_|   /_/   \_\ |_| \_\   |_|  "
 echo
 echo "Build your first network (BYFN) end-to-end test"
 echo
-CHANNEL_NAME="$1"
-DELAY="$2"
-CC_SRC_LANGUAGE="$3"
-TIMEOUT="$4"
-VERBOSE="$5"
-NO_CHAINCODE="$6"
-N_ORG="$7"
+CHANNEL_NAME="$2"
+DELAY="$3"
+CC_SRC_LANGUAGE="$4"
+TIMEOUT="$5"
+VERBOSE="$6"
+NO_CHAINCODE="$7"
+N_ORG="$1"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
 : ${NO_CHAINCODE:="true"}
-: ${N_ORG:=2}
+: ${N_ORG:="2"}
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=20
@@ -47,7 +47,7 @@ fi
 echo "Channel name : "$CHANNEL_NAME
 
 # import utils
-. scripts/utils.sh
+. scripts/utils.sh $N_ORG
 
 createChannel() {
 	setGlobals 0 1
@@ -69,19 +69,14 @@ createChannel() {
 	echo
 }
 
-echo $N_ORG
-
-i=1
 joinChannel () {
-while [ $i -le $((N_ORG)) ]
-do
+    for i in $(seq 1 $((N_ORG))); do
 	    for peer in 0 1; do
 		joinChannelWithRetry $peer $i
 		echo "===================== peer${peer}.org${i} joined channel '$CHANNEL_NAME' ===================== "
 		sleep $DELAY
 		echo
 	    done
-		i=$((i+1))
 	done
 }
 
@@ -96,10 +91,10 @@ joinChannel
 i=1
 while [ $i -le $((N_ORG)) ]
 do
-	## Set the anchor peers for each org in the channel
-	echo "Updating anchor peers for org$i..."
-	updateAnchorPeers 0 $i
-	i=$((i+1))
+## Set the anchor peers for each org in the channel
+echo "Updating anchor peers for org$i..."
+updateAnchorPeers 0 $i
+i=$((i+1))
 done
 
 # if [ "${NO_CHAINCODE}" != "true" ]; then

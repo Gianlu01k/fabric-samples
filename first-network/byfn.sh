@@ -29,8 +29,8 @@
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
 
-export N_ORG="$2"
-export N_ORD="$3"
+N_ORG="$2"
+N_ORD="$3"
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
@@ -244,7 +244,7 @@ function networkUp() {
   fi
 
   # now run the end to end script
-  docker exec cli scripts/script.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE $N_ORG
+  docker exec cli scripts/script.sh $N_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Test failed"
     exit 1
@@ -614,10 +614,10 @@ while getopts "h?c:t:d:s:l:i:anv:o:or" opt; do
     VERBOSE=true
     ;;
   o)
-    N_ORG="$OPTARG"
+    N_ORG="$2"
     ;;
   or)
-    N_ORD="$OPTARG"
+    N_ORD="$3"
     ;;
   esac
 done
