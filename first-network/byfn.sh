@@ -29,8 +29,8 @@
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
 
-N_ORG="$2"
-N_ORD="$3"
+export N_ORG="$2"
+export N_ORD="$3"
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}

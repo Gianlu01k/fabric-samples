@@ -69,14 +69,19 @@ createChannel() {
 	echo
 }
 
+echo $N_ORG
+
+i=1
 joinChannel () {
-    for i in $(seq 1 $((N_ORG))); do
+while [ $i -le $((N_ORG)) ]
+do
 	    for peer in 0 1; do
 		joinChannelWithRetry $peer $i
 		echo "===================== peer${peer}.org${i} joined channel '$CHANNEL_NAME' ===================== "
 		sleep $DELAY
 		echo
 	    done
+		i=$((i+1))
 	done
 }
 
@@ -91,10 +96,10 @@ joinChannel
 i=1
 while [ $i -le $((N_ORG)) ]
 do
-## Set the anchor peers for each org in the channel
-echo "Updating anchor peers for org$i..."
-updateAnchorPeers 0 $i
-i=$((i+1))
+	## Set the anchor peers for each org in the channel
+	echo "Updating anchor peers for org$i..."
+	updateAnchorPeers 0 $i
+	i=$((i+1))
 done
 
 # if [ "${NO_CHAINCODE}" != "true" ]; then
