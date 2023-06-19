@@ -232,8 +232,8 @@ function networkUp() {
     exit 1
   fi
 
-  echo "Sleeping 15s to allow Raft cluster to complete booting"
-  sleep 15
+  echo "Sleeping 5s to allow Raft cluster to complete booting"
+  sleep 5
 
   if [ "${NO_CHAINCODE}" != "true" ]; then
     echo Vendoring Go dependencies ...

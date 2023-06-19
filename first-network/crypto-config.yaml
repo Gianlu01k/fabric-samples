@@ -21,7 +21,6 @@ OrdererOrgs:
       - Hostname: orderer3
       - Hostname: orderer4
       - Hostname: orderer5
-      - Hostname: orderer6
 
 
 # ---------------------------------------------------------------------------
@@ -31,6 +30,38 @@ PeerOrgs:
   
   - Name: Org1
     Domain: org1.example.com
+    EnableNodeOUs: true 
+    Template:  
+      Count: 2 
+    Users: 
+      Count: 1
+  
+  - Name: Org2
+    Domain: org2.example.com
+    EnableNodeOUs: true 
+    Template:  
+      Count: 2 
+    Users: 
+      Count: 1
+  
+  - Name: Org3
+    Domain: org3.example.com
+    EnableNodeOUs: true 
+    Template:  
+      Count: 2 
+    Users: 
+      Count: 1
+  
+  - Name: Org4
+    Domain: org4.example.com
+    EnableNodeOUs: true 
+    Template:  
+      Count: 2 
+    Users: 
+      Count: 1
+  
+  - Name: Org5
+    Domain: org5.example.com
     EnableNodeOUs: true 
     Template:  
       Count: 2 
