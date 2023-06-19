@@ -8,6 +8,7 @@ version: '2'
 volumes:
   orderer2.example.com:
   orderer3.example.com:
+  orderer4.example.com:
 
 
 networks:
@@ -48,4 +49,21 @@ services:
       - orderer3.example.com:/var/hyperledger/production/orderer
     ports:
       - 9050:9050
+
+  orderer4.example.com:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    environment:
+      - ORDERER_GENERAL_LISTENPORT=10050
+    container_name: orderer4.example.com
+    networks:
+      - byfn
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/:/var/hyperledger/orderer/tls
+      - orderer4.example.com:/var/hyperledger/production/orderer
+    ports:
+      - 10050:10050
 

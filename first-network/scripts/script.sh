@@ -70,7 +70,7 @@ createChannel() {
 }
 
 joinChannel () {
-    for i in $(seq 1 $((N_ORG+1))); do
+    for i in $(seq 1 $((N_ORG))); do
 	    for peer in 0 1; do
 		joinChannelWithRetry $peer $i
 		echo "===================== peer${peer}.org${i} joined channel '$CHANNEL_NAME' ===================== "
@@ -89,7 +89,7 @@ echo "Having all peers join the channel..."
 joinChannel
 
 i=1
-while [ $i -le $((N_ORG+1)) ]
+while [ $i -le $((N_ORG)) ]
 do
 ## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for org$i..."
