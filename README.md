@@ -6,6 +6,8 @@ To execute the first network:
 
 ```bash
 
+#git checkout v2.1.0-hlf
+
 cd first-network
 
 ./byfn.sh down #to remove previous containers from docker
