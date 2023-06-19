@@ -614,10 +614,10 @@ while getopts "h?c:t:d:s:l:i:anv:o:or" opt; do
     VERBOSE=true
     ;;
   o)
-    N_ORG="$2"
+    N_ORG="$OPTARG"
     ;;
   or)
-    N_ORD="$3"
+    N_ORD="$OPTARG"
     ;;
   esac
 done

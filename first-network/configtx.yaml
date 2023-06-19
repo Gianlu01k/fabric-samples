@@ -85,6 +85,26 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org2.example.com
               Port: 9051
+    - &Org3
+        Name: Org3MSP
+        ID: Org3MSP
+        MSPDir: crypto-config/peerOrganizations/org3.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org3MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org3MSP.peer')"
+        AnchorPeers:
+            - Host: peer0.org3.example.com
+              Port: 11051
 
 ################################################################################
 #
@@ -282,6 +302,7 @@ Profiles:
             Organizations:
                 - *Org1
                 - *Org2
+                - *Org3
 
             Capabilities:
                 <<: *ApplicationCapabilities
@@ -299,14 +320,9 @@ Profiles:
                   Port: 7050
                   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
                   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-                - Host: orderer2.example.com
-                  Port: 8050
-                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
 
             Addresses:
                 - orderer.example.com:7050
-                - orderer2.example.com:8050
 
 
             Organizations:
@@ -322,4 +338,5 @@ Profiles:
                 Organizations:
                 - *Org1
                 - *Org2
+                - *Org3
 
