@@ -12,14 +12,14 @@
 #
 
 echo
-echo "========= Getting Org3 on to your first network ========= "
+echo "========= Getting new Org on to your first network ========= "
 echo
-N_ORG="$1"
-CHANNEL_NAME="$2"
-DELAY="$3"
-CC_SRC_LANGUAGE="$4"
-TIMEOUT="$5"
-VERBOSE="$6"
+CHANNEL_NAME="$1"
+DELAY="$2"
+CC_SRC_LANGUAGE="$3"
+TIMEOUT="$4"
+VERBOSE="$5"
+N_ORG="$6"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}

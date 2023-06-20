@@ -124,11 +124,11 @@ function networkUp () {
   fi
   echo
   echo "###############################################################"
-  echo "############### Have Org3 peers join network ##################"
+  echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $N_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $N_ORG
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to have Org3 peers join network"
+    echo "ERROR !!!! Unable to have Org$N_ORG peers join network"
     exit 1
   fi
   # finish by running the test
