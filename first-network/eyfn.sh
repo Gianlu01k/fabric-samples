@@ -101,6 +101,10 @@ function networkUp () {
     createConfigTx
   fi
 
+  echo $((NEXT_ORG+1)) > org-data.txt
+
+  echo $((7051+NEXT_ORG*2000)) >> org-data.txt
+
   NEXT_PORT=$((NEXT_PORT+1))
   NEXT_PORT1=$((NEXT_PORT+1000))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
@@ -115,14 +119,14 @@ function networkUp () {
       IMAGE_TAG=$IMAGETAG docker-compose -f $COMPOSE_FILE_ORG3 up -d 2>&1
   fi
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to start Org3 network"
+    echo "ERROR !!!! Unable to start Org$N_ORG network"
     exit 1
   fi
   echo
   echo "###############################################################"
   echo "############### Have Org3 peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $N_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to have Org3 peers join network"
     exit 1

@@ -95,9 +95,9 @@ joinChannelWithRetry() {
 
 # packageChaincode VERSION PEER ORG
 packageChaincode() {
-  VERSION=$1
-  PEER=$2
-  ORG=$3
+  VERSION=$3
+  PEER=$1
+  ORG=$2
   setGlobals $PEER $ORG
   set -x
   peer lifecycle chaincode package mycc.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label mycc_${VERSION} >&log.txt
