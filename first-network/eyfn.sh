@@ -122,7 +122,7 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG $NEXT_PORT
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
 
   echo $((NEXT_ORG+1)) > org-data.txt
 
@@ -161,7 +161,7 @@ function createConfigTx () {
   echo "###############################################################"
   echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
+  docker exec cli scripts/step1org3.sh $NEXT_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1

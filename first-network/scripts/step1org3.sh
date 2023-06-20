@@ -11,13 +11,12 @@
 # setup in the BYFN tutorial.
 #
 
-export NEXT_ORG="$8"
-export NEXT_PORT="$9"
-CHANNEL_NAME="$3"
-DELAY="$4"
-CC_SRC_LANGUAGE="$5"
-TIMEOUT="$6"
-VERBOSE="$7"
+NEXT_ORG="$1"
+CHANNEL_NAME="$2"
+DELAY="$3"
+CC_SRC_LANGUAGE="$4"
+TIMEOUT="$5"
+VERBOSE="$6"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -26,7 +25,7 @@ VERBOSE="$7"
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=5
-
+echo "111111111111111111111111111111:" $NEXT_ORG
 if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_RUNTIME_LANGUAGE=golang
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
@@ -58,7 +57,7 @@ jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {'Org${NEXT_O
 set +x
 
 # Compute a config update, based on the differences between config.json and modified_config.json, write it as a transaction to org3_update_in_envelope.pb
-createConfigUpdate ${CHANNEL_NAME} config.json modified_config.json "org${NEXT_ORG}_update_in_envelope.pb"
+createConfigUpdate ${CHANNEL_NAME} config.json modified_config.json org${NEXT_ORG}_update_in_envelope.pb
 
 echo
 echo "========= Config transaction to add org$NEXT_ORG to network created ===== "
@@ -66,14 +65,14 @@ echo
 
 echo "Signing config transaction"
 echo
-signConfigtxAsPeerOrg 1 "org${NEXT_ORG}_update_in_envelope.pb"
+signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 
 echo
 echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
 echo
 setGlobals 0 2
 set -x
-peer channel update -f "org${NEXT_ORG}_update_in_envelope.p" -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
+peer channel update -f org${NEXT_ORG}_update_in_envelope.p -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
 set +x
 
 echo
