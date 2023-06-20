@@ -101,10 +101,6 @@ function networkUp () {
     createConfigTx
   fi
 
-  echo $((NEXT_ORG+1)) > org-data.txt
-
-  echo $((7051+NEXT_ORG*2000)) >> org-data.txt
-
   NEXT_PORT=$((NEXT_PORT+1))
   NEXT_PORT1=$((NEXT_PORT+1000))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
@@ -126,7 +122,12 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $N_ORG
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG $NEXT_PORT
+
+  echo $((NEXT_ORG+1)) > org-data.txt
+
+  echo $((7051+NEXT_ORG*2000)) >> org-data.txt
+
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to have Org$N_ORG peers join network"
     exit 1

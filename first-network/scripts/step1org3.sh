@@ -10,15 +10,14 @@
 # configuration transaction to add org3 to the network previously
 # setup in the BYFN tutorial.
 #
-NEXT_ORG="$1"
-NEXT_PORT="$2"
+
+export NEXT_ORG="$8"
+export NEXT_PORT="$9"
 CHANNEL_NAME="$3"
 DELAY="$4"
 CC_SRC_LANGUAGE="$5"
 TIMEOUT="$6"
 VERBOSE="$7"
-NEXT_ORG="$8"
-NEXT_PORT="$9"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -55,7 +54,7 @@ fetchChannelConfig ${CHANNEL_NAME} config.json
 
 # Modify the configuration to append the new org
 set -x
-jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {'Org${ORG_N}MSP':.[1]}}}}}' config.json "./channel-artifacts/org$NEXT_ORG.json" > modified_config.json
+jq -s '.[0] * {"channel_group":{"groups":{"Application":{"groups": {'Org${NEXT_ORG}MSP':.[1]}}}}}' config.json ./channel-artifacts/org$NEXT_ORG.json > modified_config.json
 set +x
 
 # Compute a config update, based on the differences between config.json and modified_config.json, write it as a transaction to org3_update_in_envelope.pb
