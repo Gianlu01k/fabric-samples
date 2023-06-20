@@ -64,7 +64,7 @@ echo "===================== peer1.org$N_ORG joined channel '$CHANNEL_NAME' =====
 ## at first we package the chaincode
 packageChaincode 0 $N_ORG 1
 
-echo "Installing chaincode on peer0.org3..."
+echo "Installing chaincode on peer0.org$N_ORG..."
 installChaincode 0 $N_ORG
 
 ## query whether the chaincode is installed
@@ -76,12 +76,12 @@ queryCommitted 1 0 $N_ORG
 ## approve it for our org, so that our peers know what package to invoke
 approveForMyOrg 1 0 $N_ORG
 
-# Query on chaincode on peer0.org3, check if the result is 90
-echo "Querying chaincode on peer0.org3..."
+# Query on chaincode on peer0.org$N_ORG, check if the result is 90
+echo "Querying chaincode on peer0.org$N_ORG..."
 chaincodeQuery 0 $N_ORG 90
 
 echo
-echo "========= Finished adding Org3 to your first network! ========= "
+echo "========= Finished adding Org$N_ORG to your first network! ========= "
 echo
 
 exit 0

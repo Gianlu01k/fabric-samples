@@ -9,8 +9,6 @@ ORG=$1
 ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 PEER0_ORG_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.example.com/peers/peer0.org${ORG}.example.com/tls/ca.crt
 
-echo $PEER0_ORG_CA
-
 # verify the result of the end-to-end test
 verifyResult() {
   if [ $1 -ne 0 ]; then
