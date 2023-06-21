@@ -67,14 +67,21 @@ echo "Signing config transaction"
 echo
 signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 
-echo
-echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
-echo
-setGlobals 0 2
-set -x
-peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
-set +x
-
+i=2
+MAJORITY=$((NEXT_ORG/2 | bc -l))
+MAJORITY=$((MAJORITY+1))
+echo $MAJORITY
+while [ $i -le $MAJORITY ]
+do
+	echo
+	echo "========= Submitting transaction from a different peer (peer0.org$i) which also signs it ========= "
+	echo
+	setGlobals 0 $i
+	set -x
+	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
+	set +x
+	i=$((i+1))
+done
 echo
 echo "========= Config transaction to add org$NEXT_ORG to network submitted! =========== "
 echo
