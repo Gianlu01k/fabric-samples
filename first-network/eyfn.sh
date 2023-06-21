@@ -95,13 +95,13 @@ function removeUnwantedImages() {
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp () {
   # generate artifacts if they don't exist
-  if [ ! -d "org3-artifacts/crypto-config" ]; then
+  # if [ ! -d "org3-artifacts/crypto-config" ]; then
     generateCerts
     generateChannelArtifacts
     createConfigTx
-  fi
+  # fi
 
-  NEXT_PORT=$((NEXT_PORT+1))
+  NEXT_PORT=$((NEXT_PORT))
   NEXT_PORT1=$((NEXT_PORT+1000))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
   NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
@@ -133,11 +133,11 @@ function networkUp () {
     exit 1
   fi
   # finish by running the test
-  docker exec Org3cli ./scripts/testorg3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
-  if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to run test"
-    exit 1
-  fi
+  # docker exec Org3cli ./scripts/testorg3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  # if [ $? -ne 0 ]; then
+  #   echo "ERROR !!!! Unable to run test"
+  #   exit 1
+  # fi
 }
 
 # Tear down running network

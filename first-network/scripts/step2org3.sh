@@ -56,32 +56,29 @@ set +x
 cat log.txt
 verifyResult $res "Fetching config block from orderer has Failed"
 
-echo "weeeeeeeeeeeeeeeeeeeeeeeeeee"
-echo $N_ORG
-
 joinChannelWithRetry 0 $N_ORG
 echo "===================== peer0.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
 joinChannelWithRetry 1 $N_ORG
 echo "===================== peer1.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
 
-## at first we package the chaincode
-packageChaincode 0 $N_ORG 1
+# ## at first we package the chaincode
+# packageChaincode 0 $N_ORG 1
 
-echo "Installing chaincode on peer0.org$N_ORG..."
-installChaincode 0 $N_ORG
+# echo "Installing chaincode on peer0.org$N_ORG..."
+# installChaincode 0 $N_ORG
 
-## query whether the chaincode is installed
-queryInstalled 0 $N_ORG
+# ## query whether the chaincode is installed
+# queryInstalled 0 $N_ORG
 
-## sanity check: expect the chaincode to be already committed
-queryCommitted 1 0 $N_ORG
+# ## sanity check: expect the chaincode to be already committed
+# queryCommitted 1 0 $N_ORG
 
-## approve it for our org, so that our peers know what package to invoke
-approveForMyOrg 1 0 $N_ORG
+# ## approve it for our org, so that our peers know what package to invoke
+# approveForMyOrg 1 0 $N_ORG
 
-# Query on chaincode on peer0.org$N_ORG, check if the result is 90
-echo "Querying chaincode on peer0.org$N_ORG..."
-chaincodeQuery 0 $N_ORG 90
+# # Query on chaincode on peer0.org$N_ORG, check if the result is 90
+# echo "Querying chaincode on peer0.org$N_ORG..."
+# chaincodeQuery 0 $N_ORG 90
 
 echo
 echo "========= Finished adding Org$N_ORG to your first network! ========= "

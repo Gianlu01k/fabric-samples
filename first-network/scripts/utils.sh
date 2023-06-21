@@ -34,7 +34,12 @@ setGlobals() {
     CORE_PEER_LOCALMSPID=Org${ORG}MSP
     CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.example.com/peers/peer0.org${ORG}.example.com/tls/ca.crt
     CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.example.com/users/Admin@org${ORG}.example.com/msp
-    
+
+    echo $CORE_PEER_LOCALMSPID
+    echo $CORE_PEER_TLS_ROOTCERT_FILE
+    echo $CORE_PEER_MSPCONFIGPATH  
+
+
     if [ $PEER -eq 0 ]; then
       CORE_PEER_ADDRESS=peer0.org${ORG}.example.com:$P0PORT
     else
