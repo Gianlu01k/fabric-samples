@@ -80,7 +80,7 @@ signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 	echo
 	echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
 	echo
-	setGlobals 1 1
+	setGlobals 2 1
 	set -x
 	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
