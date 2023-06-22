@@ -76,25 +76,14 @@ signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 # while [ $i -le $MAJORITY ]
 # do
 
-if [ $NEXT_ORG -gt 2 ]; then
+# if [ $NEXT_ORG -gt 2 ]; then
 	echo
 	echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
 	echo
-	setGlobals 0 2
+	setGlobals 1 1
 	set -x
 	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
-else
-	setGlobals 0 1
-	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
-fi
-	# echo
-	# echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
-	# echo
-	# setGlobals 0 3
-	# set -x
-	# peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
-	# set +x
 
 
 	
