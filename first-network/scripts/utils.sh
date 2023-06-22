@@ -76,6 +76,7 @@ updateAnchorPeers() {
 
 ## Sometimes Join takes time hence RETRY at least 5 times
 joinChannelWithRetry() {
+  sleep 5
   PEER=$1
   ORG=$2
   setGlobals $PEER $ORG

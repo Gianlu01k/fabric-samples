@@ -101,6 +101,16 @@ function networkUp () {
     createConfigTx
   # fi
 
+   
+  # NEW_LINES1="\n    - \&Org$NEXT_ORG\n        Name: Org${NEXT_ORG}MSP\n        ID: Org${NEXT_ORG}MSP\n        MSPDir: crypto-config/peerOrganizations/org${NEXT_ORG}.example.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin', 'Org${NEXT_ORG}MSP.peer', 'Org${NEXT_ORG}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin', 'Org${NEXT_ORG}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$NEXT_ORG.example.com\n              Port: $NEXT_PORT\n#ORG-PLUS"
+  # NEW_LINES2="                - *Org$NEXT_ORG\n#PRO-2-PLUS"
+  # NEW_LINES3="                - *Org$NEXT_ORG\n#PROF-MUL-PLUS"
+
+  # sed -i "s/\#ORG-PLUS/$NEW_LINES1/g" configtx.yaml
+  # sed -i "s/\#PRO-2-PLUS@$NEW_LINES2/g" configtx.yaml
+  # sed -i "s/\#PROF-MUL-PLUS@$NEW_LINES3/g" configtx.yaml
+
+
   NEXT_PORT=$((NEXT_PORT))
   NEXT_PORT1=$((NEXT_PORT+1000))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
@@ -161,7 +171,7 @@ function createConfigTx () {
   echo "###############################################################"
   echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $NEXT_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
+  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1

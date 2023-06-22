@@ -12,11 +12,12 @@
 #
 
 NEXT_ORG="$1"
-CHANNEL_NAME="$2"
-DELAY="$3"
-CC_SRC_LANGUAGE="$4"
-TIMEOUT="$5"
-VERBOSE="$6"
+NEXT_PORT="$2"
+CHANNEL_NAME="$3"
+DELAY="$4"
+CC_SRC_LANGUAGE="$5"
+TIMEOUT="$6"
+VERBOSE="$7"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -25,7 +26,7 @@ VERBOSE="$6"
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
 COUNTER=1
 MAX_RETRY=5
-echo "111111111111111111111111111111:" $NEXT_ORG
+
 if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_RUNTIME_LANGUAGE=golang
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
@@ -67,21 +68,38 @@ echo "Signing config transaction"
 echo
 signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 
-i=2
-MAJORITY=$((NEXT_ORG/2 | bc -l))
-MAJORITY=$((MAJORITY+1))
-echo $MAJORITY
-while [ $i -le $MAJORITY ]
-do
+
+# i=2
+# MAJORITY=$((NEXT_ORG/2 | bc -l))
+# MAJORITY=$((MAJORITY+1))
+# echo $MAJORITY
+# while [ $i -le $MAJORITY ]
+# do
+
+if [ $NEXT_ORG -gt 2 ]; then
 	echo
-	echo "========= Submitting transaction from a different peer (peer0.org$i) which also signs it ========= "
+	echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
 	echo
-	setGlobals 0 $i
+	setGlobals 0 2
 	set -x
 	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
-	i=$((i+1))
-done
+else
+	setGlobals 0 1
+	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
+fi
+	# echo
+	# echo "========= Submitting transaction from a different peer (peer0.org2) which also signs it ========= "
+	# echo
+	# setGlobals 0 3
+	# set -x
+	# peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
+	# set +x
+
+
+	
+# 	i=$((i+1))
+# done
 echo
 echo "========= Config transaction to add org$NEXT_ORG to network submitted! =========== "
 echo
