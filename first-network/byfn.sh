@@ -29,8 +29,8 @@
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
 
-N_ORG="$2"
-N_ORD="$3"
+# N_ORG="$2"
+# N_ORD="$3"
 
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
@@ -220,7 +220,7 @@ function networkUp() {
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
     export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+    # export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
   fi
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -583,7 +583,7 @@ else
   exit 1
 fi
 
-while getopts "h?c:t:d:s:l:i:anv:o:or" opt; do
+while getopts "h?c:t:d:s:l:i:anv:o:r:" opt; do
   case "$opt" in
   h | \?)
     printHelp
@@ -617,10 +617,10 @@ while getopts "h?c:t:d:s:l:i:anv:o:or" opt; do
     VERBOSE=true
     ;;
   o)
-    N_ORG="$2"
+    N_ORG=$OPTARG
     ;;
-  or)
-    N_ORD="$3"
+  r)
+    N_ORD=$OPTARG
     ;;
   esac
 done
