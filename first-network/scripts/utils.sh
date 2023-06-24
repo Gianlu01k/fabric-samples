@@ -49,6 +49,7 @@ setGlobals() {
 updateAnchorPeers() {
   PEER=$1
   ORG=$2
+  CHANNEL_NAME=$3
   setGlobals $PEER $ORG
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
@@ -61,6 +62,7 @@ updateAnchorPeers() {
     peer channel update -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA >&log.txt
     res=$?
     set +x
+    echo $CHANNEL_NAME
   fi
   cat log.txt
   verifyResult $res "Anchor peer update failed"
@@ -73,8 +75,8 @@ updateAnchorPeers() {
 joinChannelWithRetry() {
   PEER=$1
   ORG=$2
+  CHANNEL_NAME=$3
   setGlobals $PEER $ORG
-  sleep 5
   set -x
   peer channel join -b $CHANNEL_NAME.block >&log.txt
   res=$?

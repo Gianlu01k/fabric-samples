@@ -233,7 +233,19 @@ Channel: &ChannelDefaults
 #
 ################################################################################
 Profiles:
-
+    TwoOrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *Org1
+                    - *Org2
     TwoOrgsChannel:
         Consortium: SampleConsortium
         <<: *ChannelDefaults
@@ -243,6 +255,16 @@ Profiles:
 PROFILE2ORGS
             Capabilities:
                 <<: *ApplicationCapabilities
+
+#     PVOrgsChannel:
+#         Consortium: SampleConsortium
+#         <<: *ChannelDefaults
+#         Application:
+#             <<: *ApplicationDefaults
+#             Organizations:
+# PV_CONFIG
+#             Capabilities:
+#                 <<: *ApplicationCapabilities            
 
     SampleMultiNodeEtcdRaft:
         <<: *ChannelDefaults
