@@ -65,6 +65,7 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org1.example.com
               Port: 7051
+   
     - &Org2
         Name: Org2MSP
         ID: Org2MSP
@@ -285,7 +286,7 @@ Profiles:
             SampleConsortium:
                 Organizations:
                     - *Org1
-                    - *Org2
+                    - *Org2                    
     TwoOrgsChannel:
         Consortium: SampleConsortium
         <<: *ChannelDefaults
@@ -294,7 +295,6 @@ Profiles:
             Organizations:
                 - *Org1
                 - *Org2
-
             Capabilities:
                 <<: *ApplicationCapabilities
 
@@ -344,4 +344,3 @@ Profiles:
                 Organizations:
                 - *Org1
                 - *Org2
-

@@ -9,13 +9,13 @@ echo "|____/    |_|   /_/   \_\ |_| \_\   |_|  "
 echo
 echo "Build your first network (BYFN) end-to-end test"
 echo
-N_ORG="$1"
 CHANNEL_NAME="$2"
 DELAY="$3"
 CC_SRC_LANGUAGE="$4"
 TIMEOUT="$5"
 VERBOSE="$6"
 NO_CHAINCODE="$7"
+N_ORG="$1"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -72,7 +72,7 @@ createChannel() {
 joinChannel () {
     for i in $(seq 1 $((N_ORG))); do
 	    for peer in 0 1; do
-		joinChannelWithRetry $peer $i $CHANNEL_NAME
+		joinChannelWithRetry $peer $i
 		echo "===================== peer${peer}.org${i} joined channel '$CHANNEL_NAME' ===================== "
 		sleep $DELAY
 		echo
@@ -86,7 +86,6 @@ createChannel
 
 ## Join all the peers to the channel
 echo "Having all peers join the channel..."
-echo $N_ORG
 joinChannel
 
 i=1
@@ -94,7 +93,7 @@ while [ $i -le $((N_ORG)) ]
 do
 ## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for org$i..."
-updateAnchorPeers 0 $i $CHANNEL_NAME
+updateAnchorPeers 0 $i
 i=$((i+1))
 done
 

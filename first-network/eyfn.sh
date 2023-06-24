@@ -125,46 +125,29 @@ function networkUp () {
       IMAGE_TAG=$IMAGETAG docker-compose -f $COMPOSE_FILE_ORG3 up -d 2>&1
   fi
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to start Org$NEXT_ORG network"
+    echo "ERROR !!!! Unable to start Org$N_ORG network"
     exit 1
   fi
   echo
   echo "###############################################################"
-  echo "############### Have Org$NEXT_ORG peers join network ##################"
+  echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
 
   echo $((NEXT_ORG+1)) > org-data.txt
 
   echo $((7051+NEXT_ORG*2000)) >> org-data.txt
 
-  # echo "###############################################################"
-  # echo "############### Creating private channel ##################"
-  # echo "###############################################################"
-
-  # generatePrivateChannelArtifacts
-  # createConfigTxPV
-
-  # docker exec cli scripts/script.sh 1 $NEW_CHANNEL $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE 
-
-  # if [ $? -ne 0 ]; then
-  #   echo "ERROR !!!! Unable to have Org1 peers join network"
-  #   exit 1
-  # fi
-
-  # echo
-  # echo "###############################################################"
-  # echo "############### Have Org$NEXT_ORG peers join network ##################"
-  # echo "###############################################################"
-  # docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $NEW_CHANNEL $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG
-
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!!! Unable to have Org$N_ORG peers join network"
+    exit 1
+  fi
   # finish by running the test
   # docker exec Org3cli ./scripts/testorg3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
   # if [ $? -ne 0 ]; then
   #   echo "ERROR !!!! Unable to run test"
   #   exit 1
   # fi
-      
 }
 
 # Tear down running network
@@ -188,19 +171,7 @@ function createConfigTx () {
   echo "###############################################################"
   echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
-  if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to create config tx"
-    exit 1
-  fi
-}
-
-function createConfigTxPV () {
-  echo
-  echo "###############################################################"
-  echo "####### Generate and submit config tx to add OrgX #############"
-  echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $NEW_CHANNEL $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1
@@ -237,52 +208,6 @@ function generateCerts (){
    fi
   )
   echo
-}
-
-function generatePrivateChannelArtifacts(){
-  
-  echo "##########################################################"
-  echo "#########  Generating Orderer Genesis block ##############"
-  echo "##########################################################"
-  # Note: For some unknown reason (at least for now) the block file can't be
-  # named orderer.genesis.block or the orderer will fail to launch!
-
-  NEW_LINES="                - *Org1\n                - *Org$NEXT_ORG"
-  sed -i "s/PV_CONFIG/$NEW_LINES/g" configtx.yaml
-  set -x
-  configtxgen -profile SampleMultiNodeEtcdRaft -channelID byfn-sys-channel-PV -outputBlock ./channel-artifacts/genesis.block
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate orderer genesis block..."
-    exit 1
-  fi
-  echo
-  echo "#################################################################"
-  echo "### Generating channel configuration transaction 'channel.tx' ###"
-  echo "#################################################################"
-  set -x
-  configtxgen -profile PVOrgsChannel -outputCreateChannelTx ./channel-artifacts/channel.tx -channelID $NEW_CHANNEL
-  res=$?
-  set +x
-  if [ $res -ne 0 ]; then
-    echo "Failed to generate channel configuration transaction..."
-    exit 1
-  fi
-
-    echo
-    echo "#################################################################"
-    echo "#######    Generating anchor peer update for Org${NEXT_ORG}MSP   ##########"
-    echo "#################################################################"
-    set -x
-    configtxgen -profile PVOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org${NEXT_ORG}MSPanchors.tx -channelID $NEW_CHANNEL -asOrg Org${NEXT_ORG}MSP
-    res=$?
-    set +x
-    if [ $res -ne 0 ]; then
-      echo "Failed to generate anchor peer update for Org${NEXT_ORG}MSP..."
-      exit 1
-    fi
-
 }
 
 # Generate channel configuration transaction
@@ -364,7 +289,7 @@ else
   printHelp
   exit 1
 fi
-while getopts "h?c:t:d:s:l:i:v:n" opt; do
+while getopts "h?c:t:d:s:l:i:v" opt; do
   case "$opt" in
     h|\?)
       printHelp
@@ -383,8 +308,6 @@ while getopts "h?c:t:d:s:l:i:v:n" opt; do
     i)  IMAGETAG=$OPTARG
     ;;
     v)  VERBOSE=true
-    ;;
-    n)  NEW_CHANNEL=$OPTARG
     ;;
   esac
 done
