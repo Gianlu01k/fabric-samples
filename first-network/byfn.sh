@@ -168,9 +168,9 @@ function networkUp() {
   while [ $i -le $N_ORG ]
   do
 
-   NEW_LINES1+="  peer0.org$i.example.com:\n  peer1.org$i.example.com:\n"
-   NEW_LINES2+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file:  base/docker-compose-base.yaml\n      service: peer0.org$i.example.com\n    networks:\n      - byfn\n\n  peer1.org$i.example.com:\n    container_name: peer1.org$i.example.com\n    extends:\n      file:  base/docker-compose-base.yaml\n      service: peer1.org$i.example.com\n    networks:\n      - byfn\n\n"
-   NEW_LINES3+="      - peer0.org$i.example.com\n      - peer1.org$i.example.com\n"
+   NEW_LINES1+="  peer0.org$i.example.com:\n"
+   NEW_LINES2+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file:  base/docker-compose-base.yaml\n      service: peer0.org$i.example.com\n    networks:\n      - byfn\n\n"
+   NEW_LINES3+="      - peer0.org$i.example.com\n"
 
   i=$((i+1))
   done
@@ -179,20 +179,15 @@ function networkUp() {
 
   i=1
   P0PORT=7051
-  P1PORT=8051
   NEW_LINES1=""
 
   while [ $i -le $N_ORG ]
   do
     P0PORTCHAIN=$((P0PORT+1))
     P0PORTBOOT=$((P0PORT+1000))
-    P1PORTCHAIN=$((P1PORT+1))
 
-    NEW_LINES1+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.example.com\n      - CORE_PEER_ADDRESS=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.example.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org$i.example.com:$P0PORTBOOT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.example.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
-    NEW_LINES1+="  peer1.org$i.example.com:\n    container_name: peer1.org$i.example.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer1.org$i.example.com\n      - CORE_PEER_ADDRESS=peer1.org$i.example.com:$P1PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P1PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer1.org$i.example.com:$P1PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P1PORTCHAIN\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org$i.example.com:$P1PORT\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer1.org$i.example.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer1.org$i.example.com/tls:/etc/hyperledger/fabric/tls\n        - peer1.org$i.example.com:/var/hyperledger/production\n    ports:\n      - $P1PORT:$P1PORT\n\n"
-    
+    NEW_LINES1+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.example.com\n      - CORE_PEER_ADDRESS=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.example.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.example.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
     P0PORT=$((P0PORT+2000))
-    P1PORT=$((P1PORT+2000))
 
     i=$((i+1))
   done
@@ -387,7 +382,7 @@ function generateCerts() {
   while [ $i -le $N_ORG ]
   do
 
-   NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 2 \n    Users: \n      Count: 1\n"
+   NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 1 \n    Users: \n      Count: 1\n"
 
    i=$((i+1))
   done

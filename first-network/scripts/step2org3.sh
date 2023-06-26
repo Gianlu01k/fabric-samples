@@ -58,8 +58,6 @@ verifyResult $res "Fetching config block from orderer has Failed"
 
 joinChannelWithRetry 0 $N_ORG
 echo "===================== peer0.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
-joinChannelWithRetry 1 $N_ORG
-echo "===================== peer1.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
 
 # ## at first we package the chaincode
 # packageChaincode 0 $N_ORG 1

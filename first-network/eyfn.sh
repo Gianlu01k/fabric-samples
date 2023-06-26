@@ -112,11 +112,10 @@ function networkUp () {
 
 
   NEXT_PORT=$((NEXT_PORT))
-  NEXT_PORT1=$((NEXT_PORT+1000))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
   NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
 
-  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT1/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-org3-template.yaml > docker-compose-org3.yaml
+  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-org3-template.yaml > docker-compose-org3.yaml
 
   # start org3 peers
   if [ "${IF_COUCHDB}" == "couchdb" ]; then

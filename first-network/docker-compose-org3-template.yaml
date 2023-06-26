@@ -7,7 +7,6 @@ version: '2'
 
 volumes:
   peer0.org${ORG}.example.com:
-  peer1.org${ORG}.example.com:
 
 networks:
   byfn:
@@ -25,7 +24,7 @@ services:
       - CORE_PEER_LISTENADDRESS=0.0.0.0:${ORG_P0PORT}
       - CORE_PEER_CHAINCODEADDRESS=peer0.org${ORG}.example.com:${ORG_P0PORT_CHAIN}
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:${ORG_P0PORT_CHAIN}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org${ORG}.example.com:${ORG_P1PORT}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org${ORG}.example.com:${ORG_P1PORT}
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org${ORG}.example.com:${ORG_P0PORT}
       - CORE_PEER_LOCALMSPID=Org${ORG}MSP
     volumes:
@@ -35,30 +34,6 @@ services:
         - peer0.org${ORG}.example.com:/var/hyperledger/production
     ports:
       - ${ORG_P0PORT}:${ORG_P0PORT}
-    networks:
-      - byfn
-
-  peer1.org${ORG}.example.com:
-    container_name: peer1.org${ORG}.example.com
-    extends:
-      file: base/peer-base.yaml
-      service: peer-base
-    environment:
-      - CORE_PEER_ID=peer1.org${ORG}.example.com
-      - CORE_PEER_ADDRESS=peer1.org${ORG}.example.com:${ORG_P1PORT}
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:${ORG_P1PORT}
-      - CORE_PEER_CHAINCODEADDRESS=peer1.org${ORG}.example.com:${ORG_P1PORT_CHAIN}
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:${ORG_P1PORT_CHAIN}
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org${ORG}.example.com:${ORG_P0PORT}
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org${ORG}.example.com:${ORG_P1PORT}
-      - CORE_PEER_LOCALMSPID=Org${ORG}MSP
-    volumes:
-        - /var/run/:/host/var/run/
-        - ./org3-artifacts/crypto-config/peerOrganizations/org${ORG}.example.com/peers/peer1.org${ORG}.example.com/msp:/etc/hyperledger/fabric/msp
-        - ./org3-artifacts/crypto-config/peerOrganizations/org${ORG}.example.com/peers/peer1.org${ORG}.example.com/tls:/etc/hyperledger/fabric/tls
-        - peer1.org${ORG}.example.com:/var/hyperledger/production
-    ports:
-      - ${ORG_P1PORT}:${ORG_P1PORT}
     networks:
       - byfn
 
@@ -92,6 +67,5 @@ services:
         - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
     depends_on:
       - peer0.org${ORG}.example.com
-      - peer1.org${ORG}.example.com
     networks:
       - byfn

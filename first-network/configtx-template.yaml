@@ -255,15 +255,17 @@ PROFILE2ORGS
             Capabilities:
                 <<: *ApplicationCapabilities
 
-#     PVOrgsChannel:
-#         Consortium: SampleConsortium
-#         <<: *ChannelDefaults
-#         Application:
-#             <<: *ApplicationDefaults
-#             Organizations:
-# PV_CONFIG
-#             Capabilities:
-#                 <<: *ApplicationCapabilities            
+    TwoOrgsChannelPV:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org1
+            Capabilities:
+                <<: *ApplicationCapabilities                
+
+         
 
     SampleMultiNodeEtcdRaft:
         <<: *ChannelDefaults
