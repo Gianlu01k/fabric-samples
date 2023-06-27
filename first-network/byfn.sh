@@ -35,6 +35,7 @@
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
+DOMAIN="$6"
 
 # Print the usage message
 function printHelp() {
@@ -168,14 +169,14 @@ function networkUp() {
   while [ $i -le $N_ORG ]
   do
 
-   NEW_LINES1+="  peer0.org$i.example.com:\n"
-   NEW_LINES2+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file:  base/docker-compose-base.yaml\n      service: peer0.org$i.example.com\n    networks:\n      - byfn\n\n"
-   NEW_LINES3+="      - peer0.org$i.example.com\n"
+   NEW_LINES1+="  peer0.org$i.${DOMAIN}.com:\n"
+   NEW_LINES2+="  peer0.org$i.${DOMAIN}.com:\n    container_name: peer0.org$i.${DOMAIN}.com\n    extends:\n      file:  base/docker-compose-base.yaml\n      service: peer0.org$i.${DOMAIN}.com\n    networks:\n      - byfn\n\n"
+   NEW_LINES3+="      - peer0.org$i.${DOMAIN}.com\n"
 
   i=$((i+1))
   done
 
-  sed -e "s@ORGS_AND_PEERS_VOLUMES@$NEW_LINES1@g" -e "s@ORGS_AND_PEERS_SERVICES@$NEW_LINES2@g" -e "s@ORGS_AND_PEERS_DEP@$NEW_LINES3@g" docker-compose-cli-template.yaml > docker-compose-cli.yaml
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s@ORGS_AND_PEERS_VOLUMES@$NEW_LINES1@g" -e "s@ORGS_AND_PEERS_SERVICES@$NEW_LINES2@g" -e "s@ORGS_AND_PEERS_DEP@$NEW_LINES3@g" docker-compose-cli-template.yaml > docker-compose-cli.yaml
 
   i=1
   P0PORT=7051
@@ -186,13 +187,13 @@ function networkUp() {
     P0PORTCHAIN=$((P0PORT+1))
     P0PORTBOOT=$((P0PORT+1000))
 
-    NEW_LINES1+="  peer0.org$i.example.com:\n    container_name: peer0.org$i.example.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.example.com\n      - CORE_PEER_ADDRESS=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.example.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.example.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.example.com/peers/peer0.org$i.example.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.example.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
+    NEW_LINES1+="  peer0.org$i.${DOMAIN}.com:\n    container_name: peer0.org$i.${DOMAIN}.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.${DOMAIN}.com\n      - CORE_PEER_ADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.${DOMAIN}.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
     P0PORT=$((P0PORT+2000))
 
     i=$((i+1))
   done
 
-  sed -e "s@ORGS_AND_PEERS_BASE@$NEW_LINES1@g" base/docker-compose-base-template.yaml > base/docker-compose-base.yaml
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s@ORGS_AND_PEERS_BASE@$NEW_LINES1@g" base/docker-compose-base-template.yaml > base/docker-compose-base.yaml
 
   NEW_ORDS_LINES1=""
   NEW_ORDS_LINES2=""
@@ -203,19 +204,19 @@ function networkUp() {
   while [ $j -le $N_ORD ]
   do
     O0PORT=$((O0PORT+1000))
-     NEW_ORDS_LINES1+="  orderer$j.example.com:\n"
-     NEW_ORDS_LINES2+="  orderer$j.example.com:\n    extends:\n      file: base/peer-base.yaml\n      service: orderer-base\n    environment:\n      - ORDERER_GENERAL_LISTENPORT=$O0PORT\n    container_name: orderer$j.example.com\n    networks:\n      - byfn\n    volumes:\n      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block\n      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/msp:/var/hyperledger/orderer/msp\n      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/:/var/hyperledger/orderer/tls\n      - orderer$j.example.com:/var/hyperledger/production/orderer\n    ports:\n      - $O0PORT:$O0PORT\n\n"
+     NEW_ORDS_LINES1+="  orderer$j.${DOMAIN}.com:\n"
+     NEW_ORDS_LINES2+="  orderer$j.${DOMAIN}.com:\n    extends:\n      file: base/peer-base.yaml\n      service: orderer-base\n    environment:\n      - ORDERER_GENERAL_LISTENPORT=$O0PORT\n    container_name: orderer$j.${DOMAIN}.com\n    networks:\n      - byfn\n    volumes:\n      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block\n      - ./crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer$j.${DOMAIN}.com/msp:/var/hyperledger/orderer/msp\n      - ./crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer$j.${DOMAIN}.com/tls/:/var/hyperledger/orderer/tls\n      - orderer$j.${DOMAIN}.com:/var/hyperledger/production/orderer\n    ports:\n      - $O0PORT:$O0PORT\n\n"
    j=$((j+1))
   done
 
-  sed -e "s@ORDS_VOLUMES@$NEW_ORDS_LINES1@g" -e "s@ORDS_SERVICES@$NEW_ORDS_LINES2@g" docker-compose-etcdraft2-template.yaml > docker-compose-etcdraft2.yaml
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s@ORDS_VOLUMES@$NEW_ORDS_LINES1@g" -e "s@ORDS_SERVICES@$NEW_ORDS_LINES2@g" docker-compose-etcdraft2-template.yaml > docker-compose-etcdraft2.yaml
 
 
   COMPOSE_FILES="-f ${COMPOSE_FILE} -f ${COMPOSE_FILE_RAFT2}"
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-    export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-    # export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+    export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.${DOMAIN}.com/ca && ls *_sk)
+    # export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
   fi
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -239,7 +240,7 @@ function networkUp() {
   fi
 
   # now run the end to end script
-  docker exec cli scripts/script.sh $N_ORG $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE 
+  docker exec cli scripts/script.sh $N_ORG $CHANNEL_NAME $DOMAIN $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NO_CHAINCODE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Test failed"
     exit 1
@@ -251,7 +252,7 @@ function networkUp() {
 # and relaunch the orderer and peers with latest tag
 function upgradeNetwork() {
   if [[ "$IMAGETAG" == *"1.4"* ]] || [[ $IMAGETAG == "latest" ]]; then
-    docker inspect -f '{{.Config.Volumes}}' orderer.example.com | grep -q '/var/hyperledger/production/orderer'
+    docker inspect -f '{{.Config.Volumes}}' orderer.${DOMAIN}.com | grep -q '/var/hyperledger/production/orderer'
     if [ $? -ne 0 ]; then
       echo "ERROR !!!! This network does not appear to start with fabric-samples >= v1.3.x?"
       exit 1
@@ -266,8 +267,8 @@ function upgradeNetwork() {
     COMPOSE_FILES="-f ${COMPOSE_FILE} -f ${COMPOSE_FILE_RAFT2}"
     if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
-      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.${DOMAIN}.com/ca && ls *_sk)
+      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
     fi
     if [ "${IF_COUCHDB}" == "couchdb" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -278,11 +279,11 @@ function upgradeNetwork() {
     docker-compose $COMPOSE_FILES up -d --no-deps cli
 
     echo "Upgrading orderer"
-    docker-compose $COMPOSE_FILES stop orderer.example.com
-    docker cp -a orderer.example.com:/var/hyperledger/production/orderer $LEDGERS_BACKUP/orderer.example.com
-    docker-compose $COMPOSE_FILES up -d --no-deps orderer.example.com
+    docker-compose $COMPOSE_FILES stop orderer.${DOMAIN}.com
+    docker cp -a orderer.${DOMAIN}.com:/var/hyperledger/production/orderer $LEDGERS_BACKUP/orderer.${DOMAIN}.com
+    docker-compose $COMPOSE_FILES up -d --no-deps orderer.${DOMAIN}.com
 
-    for PEER in peer0.org1.example.com peer1.org1.example.com peer0.org2.example.com peer1.org2.example.com; do
+    for PEER in peer0.org1.${DOMAIN}.com peer1.org1.${DOMAIN}.com peer0.org2.${DOMAIN}.com peer1.org2.${DOMAIN}.com; do
       echo "Upgrading peer $PEER"
 
       # Stop the peer and backup its ledger
@@ -382,7 +383,7 @@ function generateCerts() {
   while [ $i -le $N_ORG ]
   do
 
-   NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.example.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 1 \n    Users: \n      Count: 1\n"
+   NEW_LINES+="  \n  - Name: Org$i\n    Domain: org$i.${DOMAIN}.com\n    EnableNodeOUs: true \n    Template:  \n      Count: 1 \n    Users: \n      Count: 1\n"
 
    i=$((i+1))
   done
@@ -393,7 +394,7 @@ function generateCerts() {
 
   echo $((7051+N_ORG*2000)) >> org-data.txt
 
-  sed -e "s/CREATE_ORDS/$NEW_ORDS_LINES/g" -e "s/CREATE_ORGS/$NEW_LINES/g" crypto-config-template.yaml > crypto-config.yaml
+  sed -e "s/CREATE_ORDS/$NEW_ORDS_LINES/g" -e "s/CREATE_ORGS/$NEW_LINES/g" -e "s/\${DOMAIN}/$DOMAIN/g" crypto-config-template.yaml > crypto-config.yaml
 
   if [ -d "crypto-config" ]; then
     rm -Rf crypto-config
@@ -408,7 +409,7 @@ function generateCerts() {
   fi
   echo
   echo "Generate CCP files for Orgs"
-  ./ccp-generate.sh $N_ORG
+  ./ccp-generate.sh $N_ORG $DOMAIN
 }
 
 # The `configtxgen tool is used to create four artifacts: orderer **bootstrap
@@ -430,7 +431,7 @@ function generateCerts() {
 # These headers are important, as we will pass them in as arguments when we create
 # our artifacts.  This file also contains two additional specifications that are worth
 # noting.  Firstly, we specify the anchor peers for each Peer Org
-# (``peer0.org1.example.com`` & ``peer0.org2.example.com``).  Secondly, we point to
+# (``peer0.org1.${DOMAIN}.com`` & ``peer0.org2.${DOMAIN}.com``).  Secondly, we point to
 # the location of the MSP directory for each member, in turn allowing us to store the
 # root certificates for each Org in the orderer genesis block.  This is a critical
 # concept. Now any network entity communicating with the ordering service can have
@@ -470,22 +471,22 @@ function generateChannelArtifacts() {
   while [ $j -le $N_ORD ]
   do
     O0PORT=$((O0PORT+1000))
-    NEW_ORDS_LINES1+="                - Host: orderer$j.example.com\n                  Port: $O0PORT\n                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/server.crt\n                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer$j.example.com/tls/server.crt\n"  
-    NEW_ORDS_LINES2+="                - orderer$j.example.com:$O0PORT\n"  
+    NEW_ORDS_LINES1+="                - Host: orderer$j.${DOMAIN}.com\n                  Port: $O0PORT\n                  ClientTLSCert: crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer$j.${DOMAIN}.com/tls/server.crt\n                  ServerTLSCert: crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer$j.${DOMAIN}.com/tls/server.crt\n"  
+    NEW_ORDS_LINES2+="                - orderer$j.${DOMAIN}.com:$O0PORT\n"  
     j=$((j+1))
   done
 
   while [ $i -le $N_ORG ]
   do
    
-  NEW_LINES1+="\n    - \&Org$i\n        Name: Org${i}MSP\n        ID: Org${i}MSP\n        MSPDir: crypto-config/peerOrganizations/org${i}.example.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.peer', 'Org${i}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$i.example.com\n              Port: $P0PORT"
+  NEW_LINES1+="\n    - \&Org$i\n        Name: Org${i}MSP\n        ID: Org${i}MSP\n        MSPDir: crypto-config/peerOrganizations/org${i}.${DOMAIN}.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.peer', 'Org${i}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin', 'Org${i}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${i}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$i.${DOMAIN}.com\n              Port: $P0PORT"
   NEW_LINES2+="                - *Org$i\n"
   NEW_LINES3+="                - *Org$i\n"
 
    i=$((i+1))
    P0PORT=$((P0PORT+2000))
   done
-  sed -e "s@ORDS_DATA@$NEW_ORDS_LINES1@g" -e "s@ORDS_ADDRS@$NEW_ORDS_LINES2@g" -e "s@ORGANIZATIONS-ORGS@$NEW_LINES1@g" -e "s@PROFILE2ORGS@$NEW_LINES2@g" -e "s@PROFILEMULTI@$NEW_LINES3@g" configtx-template.yaml > configtx.yaml
+  sed -e "s@ORDS_DATA@$NEW_ORDS_LINES1@g" -e "s@ORDS_ADDRS@$NEW_ORDS_LINES2@g" -e "s@ORGANIZATIONS-ORGS@$NEW_LINES1@g" -e "s@PROFILE2ORGS@$NEW_LINES2@g" -e "s@PROFILEMULTI@$NEW_LINES3@g" -e "s/\${DOMAIN}/$DOMAIN/g" configtx-template.yaml > configtx.yaml
 
   echo "##########################################################"
   echo "#########  Generating Orderer Genesis block ##############"
@@ -551,6 +552,7 @@ COMPOSE_FILE_ORG3=docker-compose-org3.yaml
 COMPOSE_FILE_RAFT2=docker-compose-etcdraft2.yaml
 # certificate authorities compose file
 COMPOSE_FILE_CA=docker-compose-ca.yaml
+
 #
 # use go as the default language for chaincode
 CC_SRC_LANGUAGE=go
@@ -578,7 +580,7 @@ else
   exit 1
 fi
 
-while getopts "h?c:t:d:s:l:i:anv:o:r:" opt; do
+while getopts "h?c:t:d:s:l:i:anv:o:r:b" opt; do
   case "$opt" in
   h | \?)
     printHelp
@@ -616,6 +618,9 @@ while getopts "h?c:t:d:s:l:i:anv:o:r:" opt; do
     ;;
   r)
     N_ORD=$OPTARG
+    ;;
+  b)
+    DOMAIN=$OPTARG
     ;;
   esac
 done

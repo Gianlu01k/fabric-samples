@@ -11,7 +11,7 @@ PeerOrgs:
   # Org${ORG}
   # ---------------------------------------------------------------------------
   - Name: Org${ORG}
-    Domain: org${ORG}.example.com
+    Domain: org${ORG}.${DOMAIN}.com
     EnableNodeOUs: true
     Template:
       Count: 1

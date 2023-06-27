@@ -6,7 +6,7 @@
 version: '2'
 
 volumes:
-  orderer.example.com:
+  orderer.${DOMAIN}.com:
 ORGS_AND_PEERS_VOLUMES
 
 networks:
@@ -14,11 +14,11 @@ networks:
 services:
 CERTS_AUTH_ORGS
 
-  orderer.example.com:
+  orderer.${DOMAIN}.com:
     extends:
       file:   base/docker-compose-base.yaml
-      service: orderer.example.com
-    container_name: orderer.example.com
+      service: orderer.${DOMAIN}.com
+    container_name: orderer.${DOMAIN}.com
     networks:
       - byfn
 

@@ -6,8 +6,8 @@
 version: '2'
 
 volumes:
-  orderer.example.com:
-  peer0.org1.example.com:
+  orderer.gatto.com:
+  peer0.org1.gatto.com:
 
 
 networks:
@@ -15,19 +15,19 @@ networks:
 
 services:
 
-  orderer.example.com:
+  orderer.gatto.com:
     extends:
       file:   base/docker-compose-base.yaml
-      service: orderer.example.com
-    container_name: orderer.example.com
+      service: orderer.gatto.com
+    container_name: orderer.gatto.com
     networks:
       - byfn
 
-  peer0.org1.example.com:
-    container_name: peer0.org1.example.com
+  peer0.org1.gatto.com:
+    container_name: peer0.org1.gatto.com
     extends:
       file:  base/docker-compose-base.yaml
-      service: peer0.org1.example.com
+      service: peer0.org1.gatto.com
     networks:
       - byfn
 
@@ -44,13 +44,13 @@ services:
       #- FABRIC_LOGGING_SPEC=DEBUG
       - FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+      - CORE_PEER_ADDRESS=peer0.org1.gatto.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.gatto.com/peers/peer0.org1.gatto.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.gatto.com/peers/peer0.org1.gatto.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.gatto.com/peers/peer0.org1.gatto.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.gatto.com/users/Admin@org1.gatto.com/msp
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
@@ -60,8 +60,8 @@ services:
         - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
         - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
     depends_on:
-      - orderer.example.com
-      - peer0.org1.example.com
+      - orderer.gatto.com
+      - peer0.org1.gatto.com
 
     networks:
       - byfn

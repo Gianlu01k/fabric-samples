@@ -73,7 +73,7 @@ signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
 	echo
 	setGlobals 0 1
 	set -x
-	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.example.com:7050 --tls --cafile ${ORDERER_CA}
+	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.${DOMAIN}.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
 
 echo

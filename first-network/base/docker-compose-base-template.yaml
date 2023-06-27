@@ -7,16 +7,16 @@ version: '2'
 
 services:
 
-  orderer.example.com:
-    container_name: orderer.example.com
+  orderer.${DOMAIN}.com:
+    container_name: orderer.${DOMAIN}.com
     extends:
       file: peer-base.yaml
       service: orderer-base
     volumes:
         - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
-        - ../crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
-        - orderer.example.com:/var/hyperledger/production/orderer
+        - ../crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.${DOMAIN}.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
 

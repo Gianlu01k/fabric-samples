@@ -6,27 +6,27 @@
 version: '2'
 
 volumes:
-  orderer.example.com:
+  orderer.${DOMAIN}.com:
 ORDS_VOLUMES
 
 networks:
   byfn:
 
 services:
-  orderer.example.com:
+  orderer.${DOMAIN}.com:
     extends:
       file: base/peer-base.yaml
       service: orderer-base
     environment:
       - ORDERER_GENERAL_LISTENPORT=7050
-    container_name: orderer.example.com
+    container_name: orderer.${DOMAIN}.com
     networks:
       - byfn
     volumes:
       - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
-      - orderer.example.com:/var/hyperledger/production/orderer
+      - ./crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.${DOMAIN}.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       
