@@ -95,27 +95,15 @@ function removeUnwantedImages() {
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp () {
   # generate artifacts if they don't exist
-  # if [ ! -d "org3-artifacts/crypto-config" ]; then
     generateCerts
     generateChannelArtifacts
     createConfigTx
-  # fi
-
-   
-  # NEW_LINES1="\n    - \&Org$NEXT_ORG\n        Name: Org${NEXT_ORG}MSP\n        ID: Org${NEXT_ORG}MSP\n        MSPDir: crypto-config/peerOrganizations/org${NEXT_ORG}.${DOMAIN}.com/msp\n        Policies:\n            Readers:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin', 'Org${NEXT_ORG}MSP.peer', 'Org${NEXT_ORG}MSP.client')\"\n            Writers:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin', 'Org${NEXT_ORG}MSP.client')\"\n            Admins:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.admin')\"\n            Endorsement:\n                Type: Signature\n                Rule: \"OR('Org${NEXT_ORG}MSP.peer')\"\n        AnchorPeers:\n            - Host: peer0.org$NEXT_ORG.${DOMAIN}.com\n              Port: $NEXT_PORT\n#ORG-PLUS"
-  # NEW_LINES2="                - *Org$NEXT_ORG\n#PRO-2-PLUS"
-  # NEW_LINES3="                - *Org$NEXT_ORG\n#PROF-MUL-PLUS"
-
-  # sed -i "s/\#ORG-PLUS/$NEW_LINES1/g" configtx.yaml
-  # sed -i "s/\#PRO-2-PLUS@$NEW_LINES2/g" configtx.yaml
-  # sed -i "s/\#PROF-MUL-PLUS@$NEW_LINES3/g" configtx.yaml
-
 
   NEXT_PORT=$((NEXT_PORT))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
   NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
 
-  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-org3-template.yaml > docker-compose-org3.yaml
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-org3-template.yaml > docker-compose-org3.yaml
 
   # start org3 peers
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
@@ -131,7 +119,7 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $DOMAIN $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
 
   echo $((NEXT_ORG+1)) > org-data.txt
 
@@ -170,7 +158,7 @@ function createConfigTx () {
   echo "###############################################################"
   echo "####### Generate and submit config tx to add OrgX #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
+  docker exec cli scripts/step1org3.sh $NEXT_ORG $NEXT_PORT $DOMAIN $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1
@@ -195,7 +183,7 @@ function generateCerts (){
 
   (cd org3-artifacts
 
-   sed -e "s/\${ORG}/$NEXT_ORG/g" orgX-crypto-template.yaml > orgX-crypto.yaml
+   sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" orgX-crypto-template.yaml > orgX-crypto.yaml
 
    set -x
    cryptogen generate --config=./orgX-crypto.yaml
@@ -223,7 +211,7 @@ function generateChannelArtifacts() {
 
   (cd org3-artifacts
 
-  sed -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${PORT}/$NEXT_PORT/g" configtx-template.yaml > configtx.yaml
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${PORT}/$NEXT_PORT/g" configtx-template.yaml > configtx.yaml
   
    export FABRIC_CFG_PATH=$PWD
    set -x
@@ -270,6 +258,8 @@ CC_SRC_LANGUAGE=go
 # default image tag
 IMAGETAG="latest"
 
+DOMAIN="$2"
+
 # Parse commandline args
 if [ "$1" = "-m" ];then	# supports old usage, muscle memory is powerful!
     shift
@@ -288,7 +278,7 @@ else
   printHelp
   exit 1
 fi
-while getopts "h?c:t:d:s:l:i:v" opt; do
+while getopts "h?c:t:d:s:l:i:v:z" opt; do
   case "$opt" in
     h|\?)
       printHelp
@@ -307,6 +297,8 @@ while getopts "h?c:t:d:s:l:i:v" opt; do
     i)  IMAGETAG=$OPTARG
     ;;
     v)  VERBOSE=true
+    ;;
+    z)  DOMAIN=$OPTARG
     ;;
   esac
 done

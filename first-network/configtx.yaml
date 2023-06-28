@@ -25,7 +25,7 @@ Organizations:
         ID: OrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/gatto.com/msp
+        MSPDir: crypto-config/ordererOrganizations/master.com/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -42,13 +42,13 @@ Organizations:
                 Rule: "OR('OrdererMSP.admin')"
 
         OrdererEndpoints:
-            - orderer.gatto.com:7050
+            - orderer.master.com:7050
 
 
     - &Org1
         Name: Org1MSP
         ID: Org1MSP
-        MSPDir: crypto-config/peerOrganizations/org1.gatto.com/msp
+        MSPDir: crypto-config/peerOrganizations/org1.master.com/msp
         Policies:
             Readers:
                 Type: Signature
@@ -63,7 +63,7 @@ Organizations:
                 Type: Signature
                 Rule: "OR('Org1MSP.peer')"
         AnchorPeers:
-            - Host: peer0.org1.gatto.com
+            - Host: peer0.org1.master.com
               Port: 7051
 
 ################################################################################
@@ -297,18 +297,18 @@ Profiles:
             OrdererType: etcdraft
             EtcdRaft:
                 Consenters:
-                - Host: orderer.gatto.com
+                - Host: orderer.master.com
                   Port: 7050
-                  ClientTLSCert: crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/tls/server.crt
-                - Host: orderer2.gatto.com
+                  ClientTLSCert: crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/tls/server.crt
+                - Host: orderer2.master.com
                   Port: 8050
-                  ClientTLSCert: crypto-config/ordererOrganizations/gatto.com/orderers/orderer2.gatto.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/gatto.com/orderers/orderer2.gatto.com/tls/server.crt
+                  ClientTLSCert: crypto-config/ordererOrganizations/master.com/orderers/orderer2.master.com/tls/server.crt
+                  ServerTLSCert: crypto-config/ordererOrganizations/master.com/orderers/orderer2.master.com/tls/server.crt
 
             Addresses:
-                - orderer.gatto.com:7050
-                - orderer2.gatto.com:8050
+                - orderer.master.com:7050
+                - orderer2.master.com:8050
 
 
             Organizations:

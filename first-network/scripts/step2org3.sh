@@ -15,11 +15,12 @@ echo
 echo "========= Getting new Org on to your first network ========= "
 echo
 CHANNEL_NAME="$1"
-DELAY="$2"
-CC_SRC_LANGUAGE="$3"
-TIMEOUT="$4"
-VERBOSE="$5"
-N_ORG="$6"
+DOMAIN="$2"
+DELAY="$3"
+CC_SRC_LANGUAGE="$4"
+TIMEOUT="$5"
+VERBOSE="$6"
+N_ORG="$7"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -46,17 +47,17 @@ else
 fi
 
 # import utils
-. scripts/utils.sh
+. scripts/utils.sh $N_ORG $DOMAIN
 
 echo "Fetching channel config block from orderer..."
 set -x
-peer channel fetch 0 $CHANNEL_NAME.block -o orderer.${DOMAIN}.com:7050 -c $CHANNEL_NAME --tls --cafile $ORDERER_CA >&log.txt
+peer channel fetch 0 $CHANNEL_NAME.block -o orderer.master.com:7050 -c $CHANNEL_NAME --tls --cafile $ORDERER_CA >&log.txt
 res=$?
 set +x
 cat log.txt
 verifyResult $res "Fetching config block from orderer has Failed"
 
-joinChannelWithRetry 0 $N_ORG
+joinChannelWithRetry 0 $N_ORG $DOMAIN
 echo "===================== peer0.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
 
 # ## at first we package the chaincode

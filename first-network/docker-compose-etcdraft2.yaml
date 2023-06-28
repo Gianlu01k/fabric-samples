@@ -6,45 +6,45 @@
 version: '2'
 
 volumes:
-  orderer.gatto.com:
-  orderer2.gatto.com:
+  orderer.master.com:
+  orderer2.master.com:
 
 
 networks:
   byfn:
 
 services:
-  orderer.gatto.com:
+  orderer.master.com:
     extends:
       file: base/peer-base.yaml
       service: orderer-base
     environment:
       - ORDERER_GENERAL_LISTENPORT=7050
-    container_name: orderer.gatto.com
+    container_name: orderer.master.com
     networks:
       - byfn
     volumes:
       - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ./crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/tls/:/var/hyperledger/orderer/tls
-      - orderer.gatto.com:/var/hyperledger/production/orderer
+      - ./crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.master.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       
-  orderer2.gatto.com:
+  orderer2.master.com:
     extends:
       file: base/peer-base.yaml
       service: orderer-base
     environment:
       - ORDERER_GENERAL_LISTENPORT=8050
-    container_name: orderer2.gatto.com
+    container_name: orderer2.master.com
     networks:
       - byfn
     volumes:
       - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-      - ./crypto-config/ordererOrganizations/gatto.com/orderers/orderer2.gatto.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/gatto.com/orderers/orderer2.gatto.com/tls/:/var/hyperledger/orderer/tls
-      - orderer2.gatto.com:/var/hyperledger/production/orderer
+      - ./crypto-config/ordererOrganizations/master.com/orderers/orderer2.master.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/master.com/orderers/orderer2.master.com/tls/:/var/hyperledger/orderer/tls
+      - orderer2.master.com:/var/hyperledger/production/orderer
     ports:
       - 8050:8050
 

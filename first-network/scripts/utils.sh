@@ -7,7 +7,7 @@
 # This is a collection of bash functions used by different scripts
 ORG=$1
 DOMAIN="$2"
-ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp/tlscacerts/tlsca.${DOMAIN}.com-cert.pem
+ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/master.com/orderers/orderer.master.com/msp/tlscacerts/tlsca.master.com-cert.pem
 PEER0_ORG_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer0.org${ORG}.${DOMAIN}.com/tls/ca.crt
 
 # verify the result of the end-to-end test
@@ -23,13 +23,15 @@ verifyResult() {
 # Set OrdererOrg.Admin globals
 setOrdererGlobals() {
   CORE_PEER_LOCALMSPID="OrdererMSP"
-  CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp/tlscacerts/tlsca.${DOMAIN}.com-cert.pem
-  CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/${DOMAIN}.com/users/Admin@${DOMAIN}.com/msp
+  CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/master.com/orderers/orderer.master.com/msp/tlscacerts/tlsca.master.com-cert.pem
+  CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/master.com/users/Admin@master.com/msp
 }
 
 setGlobals() {
     PEER=$1
     ORG=$2
+    DOMAIN=$3
+    : ${DOMAIN:="master"}
     P0PORT=$(($PEER*1000+5051+$ORG*2000))
 
     CORE_PEER_LOCALMSPID=Org${ORG}MSP
@@ -46,16 +48,17 @@ setGlobals() {
 updateAnchorPeers() {
   PEER=$1
   ORG=$2
-  setGlobals $PEER $ORG
-
+  DOMAIN=$3
+  : ${DOMAIN:="master"}
+  setGlobals $PEER $ORG $DOMAIN
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer channel update -o orderer.${DOMAIN}.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx >&log.txt
+    peer channel update -o orderer.master.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer channel update -o orderer.${DOMAIN}.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA >&log.txt
+    peer channel update -o orderer.master.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA >&log.txt
     res=$?
     set +x
   fi
@@ -70,7 +73,9 @@ updateAnchorPeers() {
 joinChannelWithRetry() {
   PEER=$1
   ORG=$2
-  setGlobals $PEER $ORG
+  DOMAIN=$3
+  : ${DOMAIN:="master"}
+  setGlobals $PEER $ORG $DOMAIN
   sleep 5
   set -x
   peer channel join -b $CHANNEL_NAME.block >&log.txt
@@ -315,11 +320,11 @@ fetchChannelConfig() {
   echo "Fetching the most recent configuration block for the channel"
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer channel fetch config config_block.pb -o orderer.${DOMAIN}.com:7050 -c $CHANNEL --cafile $ORDERER_CA
+    peer channel fetch config config_block.pb -o orderer.master.com:7050 -c $CHANNEL --cafile $ORDERER_CA
     set +x
   else
     set -x
-    peer channel fetch config config_block.pb -o orderer.${DOMAIN}.com:7050 -c $CHANNEL --tls --cafile $ORDERER_CA
+    peer channel fetch config config_block.pb -o orderer.master.com:7050 -c $CHANNEL --tls --cafile $ORDERER_CA
     set +x
   fi
 
@@ -334,7 +339,9 @@ fetchChannelConfig() {
 signConfigtxAsPeerOrg() {
   PEERORG=$1
   TX=$2
-  setGlobals 0 $PEERORG
+  DOMAIN=$3
+  : ${DOMAIN:="master"}
+  setGlobals 0 $PEERORG $DOMAIN
   set -x
   peer channel signconfigtx -f "${TX}"
   set +x
@@ -410,12 +417,12 @@ chaincodeInvoke() {
   # it using the "-o" option
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer chaincode invoke -o orderer.${DOMAIN}.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS ${INIT_ARG} -c ${CCARGS} >&log.txt
+    peer chaincode invoke -o orderer.master.com:7050 -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS ${INIT_ARG} -c ${CCARGS} >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer chaincode invoke -o orderer.${DOMAIN}.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS ${INIT_ARG} -c ${CCARGS} >&log.txt
+    peer chaincode invoke -o orderer.master.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS ${INIT_ARG} -c ${CCARGS} >&log.txt
     res=$?
     set +x
   fi

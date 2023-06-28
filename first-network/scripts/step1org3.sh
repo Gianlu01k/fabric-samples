@@ -13,11 +13,12 @@
 
 NEXT_ORG="$1"
 NEXT_PORT="$2"
-CHANNEL_NAME="$3"
-DELAY="$4"
-CC_SRC_LANGUAGE="$5"
-TIMEOUT="$6"
-VERBOSE="$7"
+DOMAIN="$3"
+CHANNEL_NAME="$4"
+DELAY="$5"
+CC_SRC_LANGUAGE="$6"
+TIMEOUT="$7"
+VERBOSE="$8"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${CC_SRC_LANGUAGE:="go"}
@@ -43,7 +44,8 @@ else
 fi
 
 # import utils
-. scripts/utils.sh 
+. scripts/utils.sh $NEXT_ORG $DOMAIN
+
 
 echo
 echo "========= Creating config transaction to add org$NEXT_ORG to network =========== "
@@ -65,19 +67,19 @@ echo "========= Config transaction to add org$NEXT_ORG to network created ===== 
 echo
 
 echo "Signing config transaction"
+
+echo "$N_ORG $DOMAIN"
 echo
-signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb
+signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb master
 
 	echo
 	echo "========= Submitting transaction from a different peer (peer0.org1) which also signs it ========= "
 	echo
-	setGlobals 0 1
+	setGlobals 0 1 master
 	set -x
-	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.${DOMAIN}.com:7050 --tls --cafile ${ORDERER_CA}
+	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.master.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
 
 echo
-echo "========= Config transaction to add org$NEXT_ORG to network submitted! =========== "
-echo
-
+echo "========= Config transaction to add org2 to network submitted! =========== "
 exit 0

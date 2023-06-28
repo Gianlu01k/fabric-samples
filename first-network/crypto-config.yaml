@@ -11,7 +11,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: gatto.com
+    Domain: master.com
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -26,7 +26,7 @@ OrdererOrgs:
 PeerOrgs:
   
   - Name: Org1
-    Domain: org1.gatto.com
+    Domain: org1.master.com
     EnableNodeOUs: true 
     Template:  
       Count: 1 

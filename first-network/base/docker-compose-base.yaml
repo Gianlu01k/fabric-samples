@@ -7,38 +7,38 @@ version: '2'
 
 services:
 
-  orderer.gatto.com:
-    container_name: orderer.gatto.com
+  orderer.master.com:
+    container_name: orderer.master.com
     extends:
       file: peer-base.yaml
       service: orderer-base
     volumes:
         - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ../crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/msp:/var/hyperledger/orderer/msp
-        - ../crypto-config/ordererOrganizations/gatto.com/orderers/orderer.gatto.com/tls/:/var/hyperledger/orderer/tls
-        - orderer.gatto.com:/var/hyperledger/production/orderer
+        - ../crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.master.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
 
-  peer0.org1.gatto.com:
-    container_name: peer0.org1.gatto.com
+  peer0.org1.master.com:
+    container_name: peer0.org1.master.com
     extends:
       file: peer-base.yaml
       service: peer-base
     environment:
-      - CORE_PEER_ID=peer0.org1.gatto.com
-      - CORE_PEER_ADDRESS=peer0.org1.gatto.com:7051
+      - CORE_PEER_ID=peer0.org1.master.com
+      - CORE_PEER_ADDRESS=peer0.org1.master.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.gatto.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.master.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.gatto.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.gatto.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.master.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.master.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
     volumes:
         - /var/run/:/host/var/run/
-        - ../crypto-config/peerOrganizations/org1.gatto.com/peers/peer0.org1.gatto.com/msp:/etc/hyperledger/fabric/msp
-        - ../crypto-config/peerOrganizations/org1.gatto.com/peers/peer0.org1.gatto.com/tls:/etc/hyperledger/fabric/tls
-        - peer0.org1.gatto.com:/var/hyperledger/production
+        - ../crypto-config/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org1.master.com:/var/hyperledger/production
     ports:
       - 7051:7051
 
