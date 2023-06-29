@@ -35,7 +35,7 @@
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
-DOMAIN="$6"
+# DOMAIN="$6"
 
 # Print the usage message
 function printHelp() {
@@ -214,9 +214,10 @@ function networkUp() {
 
   COMPOSE_FILES="-f ${COMPOSE_FILE} -f ${COMPOSE_FILE_RAFT2}"
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
+    sed -e "s/\${DOMAIN}/$DOMAIN/g" docker-compose-ca-template.yaml > docker-compose-ca.yaml
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
     export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.${DOMAIN}.com/ca && ls *_sk)
-    # export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
+    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
   fi
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -553,6 +554,7 @@ COMPOSE_FILE_RAFT2=docker-compose-etcdraft2.yaml
 # certificate authorities compose file
 COMPOSE_FILE_CA=docker-compose-ca.yaml
 
+DOMAIN="master"
 #
 # use go as the default language for chaincode
 CC_SRC_LANGUAGE=go

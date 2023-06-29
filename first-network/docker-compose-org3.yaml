@@ -6,40 +6,40 @@
 version: '2'
 
 volumes:
-  peer0.org4.slave3.com:
+  peer0.org2.slave.com:
 
 networks:
   byfn:
 
 services:
 
-  peer0.org4.slave3.com:
-    container_name: peer0.org4.slave3.com
+  peer0.org2.slave.com:
+    container_name: peer0.org2.slave.com
     extends:
       file: base/peer-base.yaml
       service: peer-base
     environment:
-      - CORE_PEER_ID=peer0.org4.slave3.com
-      - CORE_PEER_ADDRESS=peer0.org4.slave3.com:13051
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:13051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org4.slave3.com:13052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:13052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org4.slave3.com:13051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org4.slave3.com:13051
-      - CORE_PEER_LOCALMSPID=Org4MSP
+      - CORE_PEER_ID=peer0.org2.slave.com
+      - CORE_PEER_ADDRESS=peer0.org2.slave.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.slave.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.slave.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.slave.com:9051
+      - CORE_PEER_LOCALMSPID=Org2MSP
     volumes:
         - /var/run/:/host/var/run/
-        - ./org3-artifacts/crypto-config/peerOrganizations/org4.slave3.com/peers/peer0.org4.slave3.com/msp:/etc/hyperledger/fabric/msp
-        - ./org3-artifacts/crypto-config/peerOrganizations/org4.slave3.com/peers/peer0.org4.slave3.com/tls:/etc/hyperledger/fabric/tls
-        - peer0.org4.slave3.com:/var/hyperledger/production
+        - ./org3-artifacts/crypto-config/peerOrganizations/org2.slave.com/peers/peer0.org2.slave.com/msp:/etc/hyperledger/fabric/msp
+        - ./org3-artifacts/crypto-config/peerOrganizations/org2.slave.com/peers/peer0.org2.slave.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org2.slave.com:/var/hyperledger/production
     ports:
-      - 13051:13051
+      - 9051:9051
     networks:
       - byfn
 
 
-  Org4cli:
-    container_name: Org4cli
+  Org2cli:
+    container_name: Org2cli
     image: hyperledger/fabric-tools:$IMAGE_TAG
     tty: true
     stdin_open: true
@@ -48,24 +48,24 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - FABRIC_LOGGING_SPEC=INFO
       #- FABRIC_LOGGING_SPEC=DEBUG
-      - CORE_PEER_ID=Org4cli
-      - CORE_PEER_ADDRESS=peer0.org4.slave3.com:13051
-      - CORE_PEER_LOCALMSPID=Org4MSP
+      - CORE_PEER_ID=Org2cli
+      - CORE_PEER_ADDRESS=peer0.org2.slave.com:9051
+      - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org4.slave3.com/peers/peer0.org4.slave3.com/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org4.slave3.com/peers/peer0.org4.slave3.com/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org4.slave3.com/peers/peer0.org4.slave3.com/tls/ca.crt
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org4.slave3.com/users/Admin@org4.slave3.com/msp
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave.com/peers/peer0.org2.slave.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave.com/peers/peer0.org2.slave.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave.com/peers/peer0.org2.slave.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave.com/users/Admin@org2.slave.com/msp
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
         - /var/run/:/host/var/run/
         - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode
         - ./org3-artifacts/crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
-        - ./crypto-config/peerOrganizations/org1.slave3.com:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.slave3.com
-#        - ./crypto-config/peerOrganizations/org2.slave3.com:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave3.com
+        - ./crypto-config/peerOrganizations/org1.slave.com:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.slave.com
+#        - ./crypto-config/peerOrganizations/org2.slave.com:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.slave.com
         - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
     depends_on:
-      - peer0.org4.slave3.com
+      - peer0.org2.slave.com
     networks:
       - byfn
