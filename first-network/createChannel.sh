@@ -5,13 +5,14 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
+DOMAIN='master'
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
 export PATH=${PWD}/../bin:${PWD}:$PATH
 # import utils
-. scripts/envVar.sh
+. scripts/envVar.sh 
 
 if [ ! -d "channel-artifacts" ]; then
 	mkdir channel-artifacts
@@ -54,7 +55,7 @@ createChannel() {
     echo "Bringing up network"
     networkUp
   fi
-	setGlobals 1
+	setGlobals 1 
 	# Poll in case the raft leader is not set yet
 	local rc=1
 	local COUNTER=1
@@ -77,14 +78,16 @@ createChannel() {
 # queryCommitted ORG
 joinChannel() {
   ORG=$1
+  echo $ORG
   setGlobals $ORG
 	local rc=1
 	local COUNTER=1
 	## Sometimes Join takes time, hence retry
 	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
+  echo $PWD
     sleep $DELAY
     set -x
-    peer channel join -b ./channel-artifacts/$CHANNEL_NAME.block >&log.txt
+    peer channel join -b .channel-artifacts/$CHANNEL_NAME.block >&log.txt
     res=$?
     set +x
 		let rc=$res

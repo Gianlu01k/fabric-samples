@@ -35,7 +35,7 @@
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
-# DOMAIN="$6"
+DOMAIN="$6"
 
 # Print the usage message
 function printHelp() {
@@ -187,7 +187,7 @@ function networkUp() {
     P0PORTCHAIN=$((P0PORT+1))
     P0PORTBOOT=$((P0PORT+1000))
 
-    NEW_LINES1+="  peer0.org$i.${DOMAIN}.com:\n    container_name: peer0.org$i.${DOMAIN}.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.${DOMAIN}.com\n      - CORE_PEER_ADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.${DOMAIN}.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
+    NEW_LINES1+="  peer0.org$i.${DOMAIN}.com:\n    container_name: peer0.org$i.${DOMAIN}.com\n    extends:\n      file: peer-base.yaml\n      service: peer-base\n    environment:\n      - CORE_PEER_ID=peer0.org$i.${DOMAIN}.com\n      - CORE_PEER_ADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LISTENADDRESS=0.0.0.0:$P0PORT\n      - CORE_PEER_CHAINCODEADDRESS=peer0.org$i.${DOMAIN}.com:$P0PORTCHAIN\n      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:$P0PORTCHAIN\n      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org$i.${DOMAIN}.com:$P0PORT\n      - CORE_PEER_LOCALMSPID=Org${i}MSP\n      - GODEBUG=netdns=go\n    volumes:\n        - /var/run/:/host/var/run/\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/msp:/etc/hyperledger/fabric/msp\n        - ../crypto-config/peerOrganizations/org$i.${DOMAIN}.com/peers/peer0.org$i.${DOMAIN}.com/tls:/etc/hyperledger/fabric/tls\n        - peer0.org$i.${DOMAIN}.com:/var/hyperledger/production\n    ports:\n      - $P0PORT:$P0PORT\n\n"
     P0PORT=$((P0PORT+2000))
 
     i=$((i+1))
@@ -554,7 +554,6 @@ COMPOSE_FILE_RAFT2=docker-compose-etcdraft2.yaml
 # certificate authorities compose file
 COMPOSE_FILE_CA=docker-compose-ca.yaml
 
-DOMAIN="master"
 #
 # use go as the default language for chaincode
 CC_SRC_LANGUAGE=go

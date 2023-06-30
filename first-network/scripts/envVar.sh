@@ -5,7 +5,7 @@
 #
 
 # This is a collection of bash functions used by different scripts
-
+DOMAIN="master"
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp/tlscacerts/tlsca.${DOMAIN}.com-cert.pem
 export PEER0_ORG1_CA=${PWD}/crypto-config/peerOrganizations/org1.${DOMAIN}.com/peers/peer0.org1.${DOMAIN}.com/tls/ca.crt
@@ -17,7 +17,7 @@ setOrdererGlobals() {
   export CORE_PEER_LOCALMSPID="OrdererMSP"
   export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/ordererOrganizations/${DOMAIN}.com/orderers/orderer.${DOMAIN}.com/msp/tlscacerts/tlsca.${DOMAIN}.com-cert.pem
   export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/ordererOrganizations/${DOMAIN}.com/users/Admin@${DOMAIN}.com/msp
-echo $CORE_PEER_LOCALMSPID $CORE_PEER_TLS_ROOTCERT_FILE $CORE_PEER_MSPCONFIGPATH
+echo "$CORE_PEER_LOCALMSPID $CORE_PEER_TLS_ROOTCERT_FILE $CORE_PEER_MSPCONFIGPATH"
 }
 
 # Set environment variables for the peer org
@@ -33,7 +33,7 @@ setGlobals() {
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/org1.${DOMAIN}.com/users/Admin@org1.${DOMAIN}.com/msp
-    export CORE_PEER_ADDRESS=localhost:7051
+    export CORE_PEER_ADDRESS=peer0.org1.master.com:7051
   elif [ $USING_ORG -eq 2 ]; then
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
