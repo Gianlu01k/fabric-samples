@@ -8,7 +8,6 @@ version: '2'
 volumes:
   orderer.master.com:
   peer0.org1.master.com:
-  peer0.org2.master.com:
 
 
 networks:
@@ -29,14 +28,6 @@ services:
     extends:
       file:  base/docker-compose-base.yaml
       service: peer0.org1.master.com
-    networks:
-      - byfn
-
-  peer0.org2.master.com:
-    container_name: peer0.org2.master.com
-    extends:
-      file:  base/docker-compose-base.yaml
-      service: peer0.org2.master.com
     networks:
       - byfn
 
@@ -71,7 +62,6 @@ services:
     depends_on:
       - orderer.master.com
       - peer0.org1.master.com
-      - peer0.org2.master.com
 
     networks:
       - byfn

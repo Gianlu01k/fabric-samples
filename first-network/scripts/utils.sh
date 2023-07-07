@@ -95,10 +95,11 @@ joinChannelWithRetry() {
 
 # packageChaincode VERSION PEER ORG
 packageChaincode() {
-  VERSION=$3
-  PEER=$1
-  ORG=$2
-  setGlobals $PEER $ORG
+  VERSION=$1
+  PEER=$2
+  ORG=$3
+  DOMAIN=$4
+  setGlobals $PEER $ORG $DOMAIN
   set -x
   peer lifecycle chaincode package mycc.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label mycc_${VERSION} >&log.txt
   res=$?
@@ -113,7 +114,8 @@ packageChaincode() {
 installChaincode() {
   PEER=$1
   ORG=$2
-  setGlobals $PEER $ORG
+  DOMAIN=$3
+  setGlobals $PEER $ORG $DOMAIN
   set -x
   peer lifecycle chaincode install mycc.tar.gz >&log.txt
   res=$?
@@ -128,7 +130,8 @@ installChaincode() {
 queryInstalled() {
   PEER=$1
   ORG=$2
-  setGlobals $PEER $ORG
+  DOMAIN=$3
+  setGlobals $PEER $ORG $DOMAIN
   set -x
   peer lifecycle chaincode queryinstalled >&log.txt
   res=$?
@@ -146,7 +149,8 @@ approveForMyOrg() {
   VERSION=$1
   PEER=$2
   ORG=$3
-  setGlobals $PEER $ORG
+  DOMAIN=$4
+  setGlobals $PEER $ORG $DOMAIN
 
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
@@ -165,9 +169,13 @@ approveForMyOrg() {
 
 # commitChaincodeDefinition VERSION PEER ORG (PEER ORG)...
 commitChaincodeDefinition() {
+  # VERSION=$1
+  # shift
+  # parsePeerConnectionParameters $@
   VERSION=$1
-  shift
-  parsePeerConnectionParameters $@
+  PEER=$2
+  ORG=$3
+  DOMAIN=$4
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
@@ -196,8 +204,9 @@ checkCommitReadiness() {
   VERSION=$1
   PEER=$2
   ORG=$3
+  DOMAIN=$4
   shift 3
-  setGlobals $PEER $ORG
+  setGlobals $PEER $ORG $DOMAIN
   echo "===================== Checking the commit readiness of the chaincode definition on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
   local rc=1
   local starttime=$(date +%s)
@@ -237,7 +246,8 @@ queryCommitted() {
   VERSION=$1
   PEER=$2
   ORG=$3
-  setGlobals $PEER $ORG
+  DOMAIN=$4
+  setGlobals $PEER $ORG $DOMAIN
   EXPECTED_RESULT="Version: ${VERSION}, Sequence: ${VERSION}, Endorsement Plugin: escc, Validation Plugin: vscc"
   echo "===================== Querying chaincode definition on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
   local rc=1
@@ -272,7 +282,8 @@ queryCommitted() {
 chaincodeQuery() {
   PEER=$1
   ORG=$2
-  setGlobals $PEER $ORG
+  DOMAIN=$4
+  setGlobals $PEER $ORG $DOMAIN
   EXPECTED_RESULT=$3
   echo "===================== Querying on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
   local rc=1
@@ -341,7 +352,7 @@ signConfigtxAsPeerOrg() {
   TX=$2
   DOMAIN=$3
   : ${DOMAIN:="master"}
-  setGlobals 0 $PEERORG $DOMAIN
+  setGlobals 0 $PEERORG $DOMAIN 
   set -x
   peer channel signconfigtx -f "${TX}"
   set +x
@@ -379,7 +390,7 @@ parsePeerConnectionParameters() {
   PEER_CONN_PARMS=""
   PEERS=""
   while [ "$#" -gt 0 ]; do
-    setGlobals $1 $2
+    setGlobals $1 $2 $3
     PEER="peer$1.org$2"
     PEERS="$PEERS $PEER"
     PEER_CONN_PARMS="$PEER_CONN_PARMS --peerAddresses $CORE_PEER_ADDRESS"
@@ -399,8 +410,12 @@ parsePeerConnectionParameters() {
 # Accepts as many peer/org pairs as desired and requests endorsement from each
 chaincodeInvoke() {
   IS_INIT=$1
-  shift
-  parsePeerConnectionParameters $@
+  # shift
+  # parsePeerConnectionParameters $@
+  PEER=$2
+  ORG=$3
+  DOMAIN=$4
+  
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 

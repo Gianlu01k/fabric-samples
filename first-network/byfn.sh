@@ -35,7 +35,7 @@
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
-DOMAIN="$6"
+DOMAIN="master"
 
 # Print the usage message
 function printHelp() {
