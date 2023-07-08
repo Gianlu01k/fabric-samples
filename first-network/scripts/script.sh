@@ -145,6 +145,45 @@ done
  	# chaincodeQuery 1 2 90
 
 echo
+echo "========== Init chaincode done =========================="
+echo	
+## at first we package the chaincode
+ 	packageChaincode 2 0 1 $DOMAIN
+
+ 	## Install chaincode on peer0.org1
+ 	echo "Installing chaincode on peer0.org1..."
+ 	installChaincode 0 1 $DOMAIN
+
+ 	## query whether the chaincode is installed
+ 	queryInstalled 0 1 $DOMAIN
+
+ 	## approve the definition for org1
+ 	approveForMyOrg 2 0 1 $DOMAIN
+
+ 	## check whether the chaincode definition is ready to be committed
+     ## expect org1 to have approved and org2 not to
+ 	#checkCommitReadiness 1 0 1 $DOMAIN "\"Org1MSP\": true"
+
+ 	# ## now approve also for org2
+ 	# approveForMyOrg 1 0 2 
+
+ 	# ## check whether the chaincode definition is ready to be committed
+ 	# ## expect them both to have approved
+ 	# checkCommitReadiness 1 0 1 $DOMAIN "\"Org1MSP\": true"
+
+ 	## now that we know for sure both orgs have approved, commit the definition
+ 	commitChaincodeDefinition 2 0 1 $DOMAIN
+
+ 	## query on both orgs to see that the definition committed successfully
+ 	queryCommitted 2 0 1 $DOMAIN
+ 	
+ 	# invoke init
+ 	chaincodeInvokeCreate 1 0 1 $DOMAIN
+ 	# Query chaincode on peer0.org1
+ 	echo "Querying chaincode on peer0.org1..."
+ 	chaincodeQuery 0 1 $DOMAIN
+
+echo
 echo "========= All GOOD, BYFN execution completed =========== "
 echo
 
