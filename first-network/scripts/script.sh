@@ -11,7 +11,7 @@ echo "Build your first network (BYFN) end-to-end test"
 echo
 CHANNEL_NAME="$2"
 DELAY="$4"
-CC_SRC_LANGUAGE="$5"
+CC_SRC_LANGUAGE="javascript"
 TIMEOUT="$6"
 VERBOSE="$7"
 NO_CHAINCODE="$8"
@@ -19,7 +19,7 @@ N_ORG="$1"
 DOMAIN="$3"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
-: ${CC_SRC_LANGUAGE:="go"}
+: ${CC_SRC_LANGUAGE:="javascript"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
 : ${NO_CHAINCODE:="true"}
@@ -34,7 +34,7 @@ if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
 elif [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
 	CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
-	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/javascript/"
+	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/fabprod/javascript/"
 elif [ "$CC_SRC_LANGUAGE" = "java" ]; then
 	CC_RUNTIME_LANGUAGE=java
 	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/java/"
@@ -51,7 +51,7 @@ echo "Channel name : "$CHANNEL_NAME
 . scripts/utils.sh $N_ORG $DOMAIN
 
 createChannel() {
-	setGlobals 0 1
+	setGlobals 0 1 
 
 	if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
                 set -x
@@ -96,7 +96,6 @@ updateAnchorPeers 0 $i
 i=$((i+1))
 done
 
-
  	## at first we package the chaincode
  	packageChaincode 1 0 1 $DOMAIN
 
@@ -119,8 +118,7 @@ done
 
  	# ## check whether the chaincode definition is ready to be committed
  	# ## expect them both to have approved
- 	# checkCommitReadiness 1 0 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
- 	# checkCommitReadiness 1 0 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
+ 	# checkCommitReadiness 1 0 1 $DOMAIN "\"Org1MSP\": true"
 
  	## now that we know for sure both orgs have approved, commit the definition
  	commitChaincodeDefinition 1 0 1 $DOMAIN
@@ -132,7 +130,7 @@ done
  	chaincodeInvoke 1 0 1 $DOMAIN
  	# Query chaincode on peer0.org1
  	echo "Querying chaincode on peer0.org1..."
- 	chaincodeQuery 0 1 100 $DOMAIN
+ 	chaincodeQuery 0 1 $DOMAIN
 
  	# # Invoke chaincode on peer0.org1 and peer0.org2
  	# echo "Sending invoke transaction on peer0.org1 peer0.org2..."
