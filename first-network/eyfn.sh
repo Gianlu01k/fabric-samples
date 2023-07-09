@@ -123,7 +123,7 @@ function networkUp () {
 
   echo $((NEXT_ORG+1)) > org-data.txt
 
-  echo $((7051+NEXT_ORG*2000)) >> org-data.txt
+  echo $((9051+NEXT_ORG*2000)) >> org-data.txt
 
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to have Org$N_ORG peers join network"

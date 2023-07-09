@@ -159,7 +159,7 @@ function networkUp() {
     generateChannelArtifacts
   fi
 
-  i=1
+  i=0
   NEW_LINES1=""
   NEW_LINES2=""
   NEW_LINES3=""
@@ -176,7 +176,7 @@ function networkUp() {
 
   sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s@ORGS_AND_PEERS_VOLUMES@$NEW_LINES1@g" -e "s@ORGS_AND_PEERS_SERVICES@$NEW_LINES2@g" -e "s@ORGS_AND_PEERS_DEP@$NEW_LINES3@g" docker-compose-cli-template.yaml > docker-compose-cli.yaml
 
-  i=1
+  i=0
   P0PORT=7051
   NEW_LINES1=""
 
@@ -214,8 +214,8 @@ function networkUp() {
   if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
     sed -e "s/\${DOMAIN}/$DOMAIN/g" docker-compose-ca-template.yaml > docker-compose-ca.yaml
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-    export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.${DOMAIN}.com/ca && ls *_sk)
-    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
+    export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org0.${DOMAIN}.com/ca && ls *_sk)
+    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/Org0.${DOMAIN}.com/ca && ls *_sk)
   fi
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -266,8 +266,8 @@ function upgradeNetwork() {
     COMPOSE_FILES="-f ${COMPOSE_FILE} -f ${COMPOSE_FILE_RAFT2}"
     if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
-      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.${DOMAIN}.com/ca && ls *_sk)
-      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.${DOMAIN}.com/ca && ls *_sk)
+      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org0.${DOMAIN}.com/ca && ls *_sk)
+      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/Org0.${DOMAIN}.com/ca && ls *_sk)
     fi
     if [ "${IF_COUCHDB}" == "couchdb" ]; then
       COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
@@ -282,7 +282,7 @@ function upgradeNetwork() {
     docker cp -a orderer.${DOMAIN}.com:/var/hyperledger/production/orderer $LEDGERS_BACKUP/orderer.${DOMAIN}.com
     docker-compose $COMPOSE_FILES up -d --no-deps orderer.${DOMAIN}.com
 
-    for PEER in peer0.org1.${DOMAIN}.com peer1.org1.${DOMAIN}.com peer0.org2.${DOMAIN}.com peer1.org2.${DOMAIN}.com; do
+    for PEER in peer0.org0.${DOMAIN}.com peer1.org0.${DOMAIN}.com peer0.org2.${DOMAIN}.com peer1.org2.${DOMAIN}.com; do
       echo "Upgrading peer $PEER"
 
       # Stop the peer and backup its ledger
@@ -316,7 +316,7 @@ function upgradeNetwork() {
 # Tear down running network
 function networkDown() {
   docker system prune --volumes -f
-  # stop org3 containers also in addition to org1 and org2, in case we were running sample to add org3
+  # stop org3 containers also in addition to Org0 and org2, in case we were running sample to add org3
   docker-compose -f $COMPOSE_FILE -f $COMPOSE_FILE_COUCH -f $COMPOSE_FILE_RAFT2 -f $COMPOSE_FILE_CA -f $COMPOSE_FILE_ORG3 down --volumes --remove-orphans
 
 
@@ -367,7 +367,7 @@ function generateCerts() {
   NEW_LINES=""
   NEW_ORDS_LINES=""
 
-  i=1
+  i=0
   j=2
 
   while [ $j -le $N_ORD ]
@@ -391,7 +391,7 @@ function generateCerts() {
 
   echo $i > org-data.txt
 
-  echo $((7051+N_ORG*2000)) >> org-data.txt
+  echo $((9051+N_ORG*2000)) >> org-data.txt
 
   sed -e "s/CREATE_ORDS/$NEW_ORDS_LINES/g" -e "s/CREATE_ORGS/$NEW_LINES/g" -e "s/\${DOMAIN}/$DOMAIN/g" crypto-config-template.yaml > crypto-config.yaml
 
@@ -422,7 +422,7 @@ function generateCerts() {
 #
 # Configtxgen consumes a file - ``configtx.yaml`` - that contains the definitions
 # for the sample network. There are three members - one Orderer Org (``OrdererOrg``)
-# and two Peer Orgs (``Org1`` & ``Org2``) each managing and maintaining two peer nodes.
+# and two Peer Orgs (``Org0`` & ``Org2``) each managing and maintaining two peer nodes.
 # This file also specifies a consortium - ``SampleConsortium`` - consisting of our
 # two Peer Orgs.  Pay specific attention to the "Profiles" section at the top of
 # this file.  You will notice that we have two unique headers. One for the orderer genesis
@@ -430,7 +430,7 @@ function generateCerts() {
 # These headers are important, as we will pass them in as arguments when we create
 # our artifacts.  This file also contains two additional specifications that are worth
 # noting.  Firstly, we specify the anchor peers for each Peer Org
-# (``peer0.org1.${DOMAIN}.com`` & ``peer0.org2.${DOMAIN}.com``).  Secondly, we point to
+# (``peer0.Org0.${DOMAIN}.com`` & ``peer0.org2.${DOMAIN}.com``).  Secondly, we point to
 # the location of the MSP directory for each member, in turn allowing us to store the
 # root certificates for each Org in the orderer genesis block.  This is a critical
 # concept. Now any network entity communicating with the ordering service can have
@@ -462,7 +462,7 @@ function generateChannelArtifacts() {
   NEW_ORDS_LINES1=""
   NEW_ORDS_LINES2=""
 
-  i=1
+  i=0
   j=2
   P0PORT=7051
   O0PORT=7050
@@ -514,7 +514,7 @@ function generateChannelArtifacts() {
     exit 1
   fi
 
-  i=1
+  i=0
   while [ $i -le $N_ORG ]
   do
     echo

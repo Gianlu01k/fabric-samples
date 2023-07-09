@@ -33,7 +33,7 @@ function yaml_ccp {
         ccp-template.yaml | sed -e $'s/\\\\n/\\\n        /g'
 }
 
-i=1
+i=0
 
 while [ $i -le $N_ORG ]
 do

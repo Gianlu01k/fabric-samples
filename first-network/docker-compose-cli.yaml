@@ -7,7 +7,7 @@ version: '2'
 
 volumes:
   orderer.master.com:
-  peer0.org1.master.com:
+  peer0.org0.master.com:
 
 
 networks:
@@ -23,11 +23,11 @@ services:
     networks:
       - byfn
 
-  peer0.org1.master.com:
-    container_name: peer0.org1.master.com
+  peer0.org0.master.com:
+    container_name: peer0.org0.master.com
     extends:
       file:  base/docker-compose-base.yaml
-      service: peer0.org1.master.com
+      service: peer0.org0.master.com
     networks:
       - byfn
 
@@ -44,13 +44,13 @@ services:
       #- FABRIC_LOGGING_SPEC=DEBUG
       - FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer0.org1.master.com:7051
-      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_ADDRESS=peer0.org0.master.com:7051
+      - CORE_PEER_LOCALMSPID=Org0MSP
       - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/tls/ca.crt
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.master.com/users/Admin@org1.master.com/msp
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org0.master.com/peers/peer0.org0.master.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org0.master.com/peers/peer0.org0.master.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org0.master.com/peers/peer0.org0.master.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org0.master.com/users/Admin@org0.master.com/msp
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
@@ -61,7 +61,7 @@ services:
         - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
     depends_on:
       - orderer.master.com
-      - peer0.org1.master.com
+      - peer0.org0.master.com
 
     networks:
       - byfn

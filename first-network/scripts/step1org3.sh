@@ -70,16 +70,16 @@ echo "Signing config transaction"
 
 echo "$N_ORG $DOMAIN"
 echo
-signConfigtxAsPeerOrg 1 org${NEXT_ORG}_update_in_envelope.pb master
+signConfigtxAsPeerOrg 0 org${NEXT_ORG}_update_in_envelope.pb master
 
 	echo
-	echo "========= Submitting transaction from a different peer (peer0.org1) which also signs it ========= "
+	echo "========= Submitting transaction from a different peer (peer0.org0) which also signs it ========= "
 	echo
-	setGlobals 0 1 master
+	setGlobals 0 0 master
 	set -x
 	peer channel update -f org${NEXT_ORG}_update_in_envelope.pb -c ${CHANNEL_NAME} -o orderer.master.com:7050 --tls --cafile ${ORDERER_CA}
 	set +x
 
 echo
-echo "========= Config transaction to add org2 to network submitted! =========== "
+echo "========= Config transaction to add org1 to network submitted! =========== "
 exit 0

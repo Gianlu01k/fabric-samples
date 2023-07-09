@@ -25,8 +25,8 @@ OrdererOrgs:
 # ---------------------------------------------------------------------------
 PeerOrgs:
   
-  - Name: Org1
-    Domain: org1.master.com
+  - Name: Org0
+    Domain: org0.master.com
     EnableNodeOUs: true 
     Template:  
       Count: 1 

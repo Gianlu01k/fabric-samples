@@ -32,7 +32,7 @@ setGlobals() {
     ORG=$2
     DOMAIN=$3
     : ${DOMAIN:="master"}
-    P0PORT=$(($PEER*1000+5051+$ORG*2000))
+    P0PORT=$(($PEER*1000+7051+$ORG*2000))
 
     CORE_PEER_LOCALMSPID=Org${ORG}MSP
     CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer0.org${ORG}.${DOMAIN}.com/tls/ca.crt
