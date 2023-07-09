@@ -29,9 +29,6 @@
 # prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
 # this may be commented out to resolve installed version of tools if desired
 
-# N_ORG="$2"
-# N_ORD="$3"
-
 export PATH=${PWD}/../bin:${PWD}:$PATH
 export FABRIC_CFG_PATH=${PWD}
 export VERBOSE=false
@@ -537,6 +534,11 @@ function generateChannelArtifacts() {
   echo
 }
 
+function useChaincode(){
+  cd scripts
+  sudo bash useChaincode.sh
+}
+
 # timeout duration - the duration the CLI should wait for a response from
 # another container before giving up
 CLI_TIMEOUT=10
@@ -577,6 +579,8 @@ elif [ "$MODE" == "generate" ]; then
   EXPMODE="Generating certs and genesis block"
 elif [ "$MODE" == "upgrade" ]; then
   EXPMODE="Upgrading the network"
+elif [ "$MODE" == "app" ]; then
+  EXPMODE="Using chaincode"
 else
   printHelp
   exit 1
@@ -652,6 +656,8 @@ elif [ "${MODE}" == "restart" ]; then ## Restart the network
   networkUp
 elif [ "${MODE}" == "upgrade" ]; then ## Upgrade the network from version 1.2.x to 1.3.x
   upgradeNetwork
+elif [ "${MODE}" == "app" ]; then
+  useChaincode
 else
   printHelp
   exit 1

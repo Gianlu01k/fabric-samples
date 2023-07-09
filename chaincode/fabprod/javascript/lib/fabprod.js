@@ -117,7 +117,7 @@ class FabProd extends Contract {
         return prodAsBytes.toString();
     }
 
-    async createProduct(ctx) {
+    async createProd(ctx, prodNumber) {
         console.info('============= START : Create Product ===========');
 
         const product = {
@@ -209,7 +209,7 @@ class FabProd extends Contract {
           }
 
         await ctx.stub.putState(prodNumber, Buffer.from(JSON.stringify(product)));
-        console.info('============= END : Create Car ===========');
+        console.info('============= END : Create Product ===========');
     }
 
     async queryAllProducts(ctx) {
