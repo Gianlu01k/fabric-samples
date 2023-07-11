@@ -1,0 +1,39 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  peer${PEER}.org${ORG}.${DOMAIN}.com:
+
+networks:
+  byfn:
+
+services:
+
+  peer${PEER}.org${ORG}.${DOMAIN}.com:
+    container_name: peer${PEER}.org${ORG}.${DOMAIN}.com
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer${PEER}.org${ORG}.${DOMAIN}.com
+      - CORE_PEER_ADDRESS=peer${PEER}.org${ORG}.${DOMAIN}.com:${ORG_P0PORT}
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:${ORG_P0PORT}
+      - CORE_PEER_CHAINCODEADDRESS=peer${PEER}.org${ORG}.${DOMAIN}.com:${ORG_P0PORT_CHAIN}
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:${ORG_P0PORT_CHAIN}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer${PEER}.org${ORG}.${DOMAIN}.com:${ORG_P1PORT}
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer${PEER}.org${ORG}.${DOMAIN}.com:${ORG_P0PORT}
+      - CORE_PEER_LOCALMSPID=Org${ORG}MSP
+      - CORE_PEER_MSPCONFIGPATH=/org3-artifacts/crypto-config/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer${PEER}.org${ORG}.${DOMAIN}.com/msp/
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./org3-artifacts/crypto-config/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer${PEER}.org${ORG}.${DOMAIN}.com/msp:/etc/hyperledger/fabric/msp
+        - ./org3-artifacts/crypto-config/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer${PEER}.org${ORG}.${DOMAIN}.com/tls:/etc/hyperledger/fabric/tls
+        - peer${PEER}.org${ORG}.${DOMAIN}.com:/var/hyperledger/production
+    ports:
+      - ${ORG_P0PORT}:${ORG_P0PORT}
+    networks:
+      - byfn

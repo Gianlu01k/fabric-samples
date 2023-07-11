@@ -1,1 +1,1 @@
-Error: error getting endorser client for channel: endorser client failed to connect to peer0.org1.master.com:7051: failed to create new connection: connection error: desc = "transport: error while dialing: dial tcp: lookup peer0.org1.master.com on 172.17.192.1:53: no such host"
+scripts/utils.sh: line 104: peer: command not found

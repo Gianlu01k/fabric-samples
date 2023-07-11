@@ -183,7 +183,7 @@ function generateCerts (){
 
   (cd org3-artifacts
 
-   sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" orgX-crypto-template.yaml > orgX-crypto.yaml
+   sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${NPEERS}/1/g" orgX-crypto-template.yaml > orgX-crypto.yaml
 
    set -x
    cryptogen generate --config=./orgX-crypto.yaml

@@ -14,6 +14,6 @@ PeerOrgs:
     Domain: org${ORG}.${DOMAIN}.com
     EnableNodeOUs: true
     Template:
-      Count: 1
+      Count: ${NPEERS}
     Users:
       Count: 1

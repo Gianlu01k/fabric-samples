@@ -44,3 +44,16 @@ Organizations:
             - Host: peer0.org${ORG}.${DOMAIN}.com
               Port: ${PORT}
 
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org${ORG}MSP.admin', 'Org${ORG}MSP.peer', 'Org${ORG}MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org${ORG}MSP.admin')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org${ORG}MSP.admin')"    
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org${ORG}MSP.admin')"  

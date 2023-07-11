@@ -35,10 +35,10 @@ setGlobals() {
     P0PORT=$(($PEER*1000+7051+$ORG*2000))
 
     CORE_PEER_LOCALMSPID=Org${ORG}MSP
-    CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer0.org${ORG}.${DOMAIN}.com/tls/ca.crt
+    CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer${PEER}.org${ORG}.${DOMAIN}.com/tls/ca.crt
     CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org${ORG}.${DOMAIN}.com/users/Admin@org${ORG}.${DOMAIN}.com/msp
 
-    CORE_PEER_ADDRESS=peer0.org${ORG}.${DOMAIN}.com:$P0PORT
+    CORE_PEER_ADDRESS=peer${PEER}.org${ORG}.${DOMAIN}.com:$P0PORT
 
   if [ "$VERBOSE" == "true" ]; then
     env | grep CORE
@@ -86,7 +86,7 @@ joinChannelWithRetry() {
     COUNTER=$(expr $COUNTER + 1)
     echo "peer${PEER}.org${ORG} failed to join the channel, Retry after $DELAY seconds"
     sleep $DELAY
-    joinChannelWithRetry $PEER $ORG
+    joinChannelWithRetry $PEER $ORG $DOMAIN
   else
     COUNTER=1
   fi
@@ -370,7 +370,7 @@ signConfigtxAsPeerOrg() {
   PEERORG=$1
   TX=$2
   DOMAIN=$3
-  : ${DOMAIN:="master"}
+  : ${DOMAIN:="slave1"}
   setGlobals 0 $PEERORG $DOMAIN 
   set -x
   peer channel signconfigtx -f "${TX}"
@@ -496,7 +496,7 @@ parsePeerConnectionParameters() {
    else
      set -x
     #  peer chaincode invoke -o orderer.master.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc $PEER_CONN_PARMS ${INIT_ARG} -c ${CCARGS} >&log.txt
-         peer chaincode invoke -o orderer.master.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n fabprod $PEER_CONN_PARMS -c '{"function":"queryProduct","Args":["PROD0"]}' >&log.txt
+         peer chaincode invoke -o orderer.master.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n fabprod $PEER_CONN_PARMS -c '{"function":"createProd","Args":["PROD1"]}' >&log.txt
 
      res=$?
      set +x

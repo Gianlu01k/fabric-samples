@@ -1,29 +1,332 @@
-export CORE_PEER_TLS_ENABLED=true
-export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer0.org1.master.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/crypto-config/peerOrganizations/org1.master.com/users/Admin@org1.master.com/msp
-export CORE_PEER_ADDRESS=localhost:7051
+#!/bin/bash
+#
+# Copyright IBM Corp All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-export PATH=$PATH:$PWD/../bin/
+# This script extends the Hyperledger Fabric By Your First Network by
+# adding a third organization to the network previously setup in the
+# BYFN tutorial.
+#
 
-export FABRIC_CFG_PATH=$PWD/../config/
-export ORDERER_CA=${PWD}/crypto-config/ordererOrganizations/master.com/orderers/orderer.master.com/msp/tlscacerts/tlsca.master.com-cert.pem
+# prepending $PWD/../bin to PATH to ensure we are picking up the correct binaries
+# this may be commented out to resolve installed version of tools if desired
+export PATH=${PWD}/../bin:${PWD}:$PATH
+export FABRIC_CFG_PATH=${PWD}
+export VERBOSE=false
+export NEXT_ORG=2
+export NEXT_PORT=11051
 
-export PATH=$PATH:${PWD}/../bin
-export FABRIC_CA_CLIENT_HOME=${PWD}/crypto-config/peerOrganizations/org1.master.com/
-echo 1
-fabric-ca-client register --caname ca-org1 --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles ${PWD}/crypto-config/fabric-ca/org1/tls-cert.pem
-echo 2
-mkdir -p crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com
-echo 3
-fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-org1 -M ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/msp --csr.hosts peer1.org1.master.com --tls.certfiles ${PWD}/crypto-config/fabric-ca/org1/tls-cert.pem
-echo 4
-cp ${PWD}/crypto-config/peerOrganizations/org1.master.com/msp/config.yaml ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/msp/config.yaml
-echo 5
-fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-org1 -M ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls --enrollment.profile tls --csr.hosts peer1.org1.master.com --csr.hosts localhost --tls.certfiles ${PWD}/crypto-config/fabric-ca/org1/tls-cert.pem
-echo 6
-cp ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/tlscacerts/* ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/ca.crt
-echo 7
-cp ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/signcerts/* ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/server.crt
-echo 
-cp ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/keystore/* ${PWD}/crypto-config/peerOrganizations/org1.master.com/peers/peer1.org1.master.com/tls/server.key
+
+# Print the usage message
+function printHelp () {
+  echo "Usage: "
+  echo "  eyfn.sh up|down|restart|generate [-c <channel name>] [-t <timeout>] [-d <delay>] [-f <docker-compose-file>] [-s <dbtype>]"
+  echo "  eyfn.sh -h|--help (print this message)"
+  echo "    <mode> - one of 'up', 'down', 'restart' or 'generate'"
+  echo "      - 'up' - bring up the network with docker-compose up"
+  echo "      - 'down' - clear the network with docker-compose down"
+  echo "      - 'restart' - restart the network"
+  echo "      - 'generate' - generate required certificates and genesis block"
+  echo "    -c <channel name> - channel name to use (defaults to \"mychannel\")"
+  echo "    -t <timeout> - CLI timeout duration in seconds (defaults to 10)"
+  echo "    -d <delay> - delay duration in seconds (defaults to 3)"
+  echo "    -s <dbtype> - the database backend to use: goleveldb (default) or couchdb"
+  echo "    -l <language> - the programming language of the chaincode to deploy: go (default), javascript, or java"
+  echo "    -i <imagetag> - the tag to be used to launch the network (defaults to \"latest\")"
+  echo "    -v - verbose mode"
+  echo
+  echo "Typically, one would first generate the required certificates and "
+  echo "genesis block, then bring up the network. e.g.:"
+  echo
+  echo "	eyfn.sh generate -c mychannel"
+  echo "	eyfn.sh up -c mychannel -s couchdb"
+  echo "	eyfn.sh up -l javascript"
+  echo "	eyfn.sh down -c mychannel"
+  echo
+  echo "Taking all defaults:"
+  echo "	eyfn.sh generate"
+  echo "	eyfn.sh up"
+  echo "	eyfn.sh down"
+}
+
+# Ask user for confirmation to proceed
+function askProceed () {
+  read -p "Continue? [Y/n] " ans
+  case "$ans" in
+    y|Y|"" )
+      echo "proceeding ..."
+    ;;
+    n|N )
+      echo "exiting..."
+      exit 1
+    ;;
+    * )
+      echo "invalid response"
+      askProceed
+    ;;
+  esac
+}
+
+# Obtain CONTAINER_IDS and remove them
+# TODO Might want to make this optional - could clear other containers
+function clearContainers () {
+  CONTAINER_IDS=$(docker ps -aq)
+  if [ -z "$CONTAINER_IDS" -o "$CONTAINER_IDS" == " " ]; then
+    echo "---- No containers available for deletion ----"
+  else
+    docker rm -f $CONTAINER_IDS
+  fi
+}
+
+# Delete any images that were generated as a part of this setup
+# specifically the following images are often left behind:
+# TODO list generated image naming patterns
+function removeUnwantedImages() {
+  DOCKER_IMAGE_IDS=$(docker images|awk '($1 ~ /dev-peer.*.mycc.*/) {print $3}')
+  if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" == " " ]; then
+    echo "---- No images available for deletion ----"
+  else
+    docker rmi -f $DOCKER_IMAGE_IDS
+  fi
+}
+
+# Generate the needed certificates, the genesis block and start the network.
+function networkUp () {
+  # generate artifacts if they don't exist
+    generateCerts
+    generateChannelArtifacts
+    createConfigTx
+
+  NEXT_PORT=$((NEXT_PORT+1000))
+  NEXT_PORTCHAIN=$((NEXT_PORT+1))
+  NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
+
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${PEER}/1/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${ORG_P0PORT}/$NEXT_PORT/g" -e "s/\${ORG_P0PORT_CHAIN}/$NEXT_PORTCHAIN/g" -e "s/\${ORG_P1PORT}/$NEXT_PORT/g" -e "s/\${ORG_P1PORT_CHAIN}/$NEXT_PORTCHAIN1/g" docker-compose-peer-template.yaml > docker-compose-org3.yaml
+#   yq eval '.volumes += {"peer1.org2.slave1.com": .volumes["peer0.org2.slave1.com"]}' docker-compose-org3.yaml > update_docker-compose-org3.yaml
+#   yq eval '.services["peer1.org2.slave1.com"] |= . + {"container_name": "peer1.org2.slave1.com", "environment": ["CORE_PEER_ID=peer1.org2.slave1.com", "CORE_PEER_ADDRESS=peer1.org2.slave1.com:12051", "CORE_PEER_LISTENADDRESS=0.0.0.0:12051", "CORE_PEER_CHAINCODEADDRESS=peer0.org2.slave2.com:11052", "CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:12052", "CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.slave2.com:12051", "CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.slave2.com:12051", "CORE_PEER_LOCALMSPID=Org2MSP"], "volumes": ["/var/run/:/host/var/run/", "./org3-artifacts/crypto-config/peerOrganizations/org2.slave1.com/peers/peer0.org2.slave1.com/msp:/etc/hyperledger/fabric/msp", "./org3-artifacts/crypto-config/peerOrganizations/org2.slave1.com/peers/peer0.org2.slave1.com/tls:/etc/hyperledger/fabric/tls", "peer0.org2.slave1.com:/var/hyperledger/production"], "ports":
+#  ["12052:12052"], "networks": ["byfn"]}' docker-compose-org3.yaml > update_docker-compose-org3.yaml
+#   cat update_docker-compose-org3.yaml > docker-compose-org3.yaml
+  # start org3 peers
+  if [ "${IF_COUCHDB}" == "couchdb" ]; then
+      IMAGE_TAG=${IMAGETAG} docker-compose -f $COMPOSE_FILE_ORG3 -f $COMPOSE_FILE_COUCH_ORG3 up -d 2>&1
+  else
+      IMAGE_TAG=$IMAGETAG docker-compose -f $COMPOSE_FILE_ORG3 up -d 2>&1
+  fi
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!!! Unable to start Org$N_ORG network"
+    exit 1
+  fi
+  echo
+  echo "###############################################################"
+  echo "############### Have Org$N_ORG peers join network ##################"
+  echo "###############################################################"
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3-addpeer.sh $CHANNEL_NAME $DOMAIN $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
+
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!!! Unable to have Org$N_ORG peers join network"
+    exit 1
+  fi
+  # finish by running the test
+  # docker exec Org3cli ./scripts/testorg3.sh $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE
+  # if [ $? -ne 0 ]; then
+  #   echo "ERROR !!!! Unable to run test"
+  #   exit 1
+  # fi
+}
+
+# Tear down running network
+function networkDown () {
+  docker-compose -f $COMPOSE_FILE -f $COMPOSE_FILE_RAFT2 -f $COMPOSE_FILE_ORG3 -f $COMPOSE_FILE_COUCH down --volumes --remove-orphans
+  # Don't remove containers, images, etc if restarting
+  if [ "$MODE" != "restart" ]; then
+    #Cleanup the chaincode containers
+    clearContainers
+    #Cleanup images
+    removeUnwantedImages
+    # remove orderer block and other channel configuration transactions and certs
+    rm -rf channel-artifacts/*.block channel-artifacts/*.tx crypto-config ./org3-artifacts/crypto-config/ channel-artifacts/org3.json
+  fi
+}
+
+# Use the CLI container to create the configuration transaction needed to add
+# Org3 to the network
+function createConfigTx () {
+  echo
+  echo "###############################################################"
+  echo "####### Generate and submit config tx to add OrgX #############"
+  echo "###############################################################"
+  #docker exec cli scripts/step1org3-addpeer.sh $NEXT_ORG $NEXT_PORT $DOMAIN $CHANNEL_NAME $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE 
+  if [ $? -ne 0 ]; then
+    echo "ERROR !!!! Unable to create config tx"
+    exit 1
+  fi
+}
+
+# We use the cryptogen tool to generate the cryptographic material
+# (x509 certs) for the new org.  After we run the tool, the certs will
+# be parked in the BYFN folder titled ``crypto-config``.
+
+# Generates Org3 certs using cryptogen tool
+function generateCerts (){
+  which cryptogen
+  if [ "$?" -ne 0 ]; then
+    echo "cryptogen tool not found. exiting"
+    exit 1
+  fi
+  echo
+  echo "###############################################################"
+  echo "##### Generate OrgX certificates using cryptogen tool #########"
+  echo "###############################################################"
+
+  (cd org3-artifacts
+
+   sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${NPEERS}/2/g" orgX-crypto-template.yaml > orgX-crypto.yaml
+
+   set -x
+   cryptogen generate --config=./orgX-crypto.yaml
+   res=$?
+   set +x
+   if [ $res -ne 0 ]; then
+     echo "Failed to generate certificates..."
+     exit 1
+   fi
+  )
+  echo
+}
+
+# Generate channel configuration transaction
+function generateChannelArtifacts() {
+  which configtxgen
+  if [ "$?" -ne 0 ]; then
+    echo "configtxgen tool not found. exiting"
+    exit 1
+  fi
+  echo "##########################################################"
+  echo "#########  Generating OrgX config material ###############"
+  echo "##########################################################"
+
+
+  (cd org3-artifacts
+
+  sed -e "s/\${DOMAIN}/$DOMAIN/g" -e "s/\${ORG}/$NEXT_ORG/g" -e "s/\${PORT}/$NEXT_PORT/g" configtx-template.yaml > configtx.yaml
+  
+   export FABRIC_CFG_PATH=$PWD
+   set -x
+   configtxgen -printOrg Org${NEXT_ORG}MSP > ../channel-artifacts/org${NEXT_ORG}.json
+   res=$?
+   set +x
+   if [ $res -ne 0 ]; then
+     echo "Failed to generate Org$NEXT_ORG config material..."
+     exit 1
+   fi
+  )
+  cp -r crypto-config/ordererOrganizations org3-artifacts/crypto-config/
+  echo
+}
+
+
+# If BYFN wasn't run abort
+if [ ! -d crypto-config ]; then
+  echo
+  echo "ERROR: Please, run byfn.sh first."
+  echo
+  exit 1
+fi
+
+# timeout duration - the duration the CLI should wait for a response from
+# another container before giving up
+CLI_TIMEOUT=10
+#default for delay
+CLI_DELAY=3
+# channel name defaults to "mychannel"
+CHANNEL_NAME="mychannel"
+# use this as the default docker-compose yaml definition
+COMPOSE_FILE=docker-compose-cli.yaml
+#
+COMPOSE_FILE_COUCH=docker-compose-couch.yaml
+# use this as the default docker-compose yaml definition
+COMPOSE_FILE_ORG3=docker-compose-org3.yaml
+#
+COMPOSE_FILE_COUCH_ORG3=docker-compose-couch-org3.yaml
+# two additional etcd/raft orderers
+COMPOSE_FILE_RAFT2=docker-compose-etcdraft2.yaml
+# use go as the default language for chaincode
+CC_SRC_LANGUAGE=go
+# default image tag
+IMAGETAG="latest"
+
+DOMAIN="$2"
+
+# Parse commandline args
+if [ "$1" = "-m" ];then	# supports old usage, muscle memory is powerful!
+    shift
+fi
+MODE=$1;shift
+# Determine whether starting, stopping, restarting or generating for announce
+if [ "$MODE" == "up" ]; then
+  EXPMODE="Starting"
+elif [ "$MODE" == "down" ]; then
+  EXPMODE="Stopping"
+elif [ "$MODE" == "restart" ]; then
+  EXPMODE="Restarting"
+elif [ "$MODE" == "generate" ]; then
+  EXPMODE="Generating certs and genesis block for"
+else
+  printHelp
+  exit 1
+fi
+while getopts "h?c:t:d:s:l:i:v:z" opt; do
+  case "$opt" in
+    h|\?)
+      printHelp
+      exit 0
+    ;;
+    c)  CHANNEL_NAME=$OPTARG
+    ;;
+    t)  CLI_TIMEOUT=$OPTARG
+    ;;
+    d)  CLI_DELAY=$OPTARG
+    ;;
+    s)  IF_COUCHDB=$OPTARG
+    ;;
+    l)  CC_SRC_LANGUAGE=$OPTARG
+    ;;
+    i)  IMAGETAG=$OPTARG
+    ;;
+    v)  VERBOSE=true
+    ;;
+    z)  DOMAIN=$OPTARG
+    ;;
+  esac
+done
+
+# Announce what was requested
+
+  if [ "${IF_COUCHDB}" == "couchdb" ]; then
+        echo
+        echo "${EXPMODE} with channel '${CHANNEL_NAME}' and CLI timeout of '${CLI_TIMEOUT}' seconds and CLI delay of '${CLI_DELAY}' seconds and using database '${IF_COUCHDB}'"
+  else
+        echo "${EXPMODE} with channel '${CHANNEL_NAME}' and CLI timeout of '${CLI_TIMEOUT}' seconds and CLI delay of '${CLI_DELAY}' seconds"
+  fi
+# ask for confirmation to proceed
+askProceed
+
+#Create the network using docker compose
+if [ "${MODE}" == "up" ]; then
+  networkUp
+elif [ "${MODE}" == "down" ]; then ## Clear the network
+  networkDown
+elif [ "${MODE}" == "generate" ]; then ## Generate Artifacts
+  generateCerts
+  generateChannelArtifacts
+  createConfigTx
+elif [ "${MODE}" == "restart" ]; then ## Restart the network
+  networkDown
+  networkUp
+else
+  printHelp
+  exit 1
+fi

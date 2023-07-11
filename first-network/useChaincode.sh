@@ -1,6 +1,7 @@
 #!/bin/bash
-export PATH=${PWD}/../bin:${PWD}:$PATH
-export FABRIC_CFG_PATH=${PWD}
+
+
+export FABRIC_CFG_PATH=${PWD}/../config
 echo
 echo " ____    _____      _      ____    _____ "
 echo "/ ___|  |_   _|    / \    |  _ \  |_   _|"
@@ -31,12 +32,13 @@ COUNTER=1
 MAX_RETRY=20
 PACKAGE_ID=""
 
+
 if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_RUNTIME_LANGUAGE=golang
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
 elif [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
 	CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
-	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/fabprod/javascript/"
+	CC_SRC_PATH="../chaincode/fabprod/javascript/"
 elif [ "$CC_SRC_LANGUAGE" = "java" ]; then
 	CC_RUNTIME_LANGUAGE=java
 	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/java/"
@@ -50,7 +52,12 @@ fi
 echo "Channel name : "$CHANNEL_NAME
 
 # import utils
-. utils.sh $N_ORG $DOMAIN
+. scripts/utils.sh $N_ORG $DOMAIN
+
+CORE_PEER_LOCALMSPID=Org${ORG}MSP
+CORE_PEER_TLS_ROOTCERT_FILE=../crypto-config/peerOrganizations/org${ORG}.${DOMAIN}.com/peers/peer0.org${ORG}.${DOMAIN}.com/tls/ca.crt
+CORE_PEER_MSPCONFIGPATH=../crypto-config/peerOrganizations/org${ORG}.${DOMAIN}.com/users/Admin@org${ORG}.${DOMAIN}.com/msp
+
 
 echo
 echo "========== Init chaincode done =========================="
@@ -59,7 +66,7 @@ echo
  	packageChaincode 2 0 1 $DOMAIN
 
  	## Install chaincode on peer0.org1
- 	echo "Installing chaincode on peer0.org1..."
+ 	echo "Installing chaincode on peer0.org$ORG_N..."
  	installChaincode 2 0 1 $DOMAIN
 
  	## query whether the chaincode is installed
@@ -87,8 +94,8 @@ echo
  	
  	# invoke init
  	chaincodeInvokeCreate 0 1 $DOMAIN
- 	# Query chaincode on peer0.org1
- 	echo "Querying chaincode on peer0.org1..."
+ 	# Query chaincode on peer0.org0
+ 	echo "Querying chaincode on peer0.orgORG_N..."
  	chaincodeQuery 0 1 $DOMAIN
 
 echo

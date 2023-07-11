@@ -27,10 +27,8 @@ rm -rf java/wallet/*
 rm -rf typescript/wallet/*
 
 # launch network; create channel and join peer to channel
-pushd ../test-network
-./network.sh down
-./network.sh up createChannel -ca -s couchdb
-./network.sh deployCC -l ${CC_SRC_LANGUAGE}
+pushd ../first-network
+sudo bash byfn.sh up -o 0 -r 2 master
 popd
 
 cat <<EOF

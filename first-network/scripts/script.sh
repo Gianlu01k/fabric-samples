@@ -96,6 +96,7 @@ updateAnchorPeers 0 $i
 i=$((i+1))
 done
 
+echo "========== Init chaincode start =========================="
  	## at first we package the chaincode
  	packageChaincode 1 0 $N_ORG $DOMAIN
 
@@ -109,17 +110,6 @@ done
  	## approve the definition for org0
  	approveForMyOrg 1 0 $N_ORG $DOMAIN
 
- 	## check whether the chaincode definition is ready to be committed
-     ## expect org0 to have approved and org1 not to
- 	#checkCommitReadiness 1 0 1 $DOMAIN "\"Org0MSP\": true"
-
- 	# ## now approve also for org2
- 	# approveForMyOrg 1 0 2 
-
- 	# ## check whether the chaincode definition is ready to be committed
- 	# ## expect them both to have approved
- 	# checkCommitReadiness 1 0 1 $DOMAIN "\"Org0MSP\": true"
-
  	## now that we know for sure both orgs have approved, commit the definition
  	commitChaincodeDefinition 1 0 $N_ORG $DOMAIN
 
@@ -132,21 +122,11 @@ done
  	echo "Querying chaincode on peer0.org0..."
  	chaincodeQuery 0 $N_ORG $DOMAIN
 
- 	# # Invoke chaincode on peer0.org0 and peer0.org2
- 	# echo "Sending invoke transaction on peer0.org0 peer0.org2..."
- 	# chaincodeInvoke 0 0 1 0 2
-
- 	# # Query chaincode on peer0.org0
- 	# echo "Querying chaincode on peer0.org0..."
- 	# chaincodeQuery 0 1 90
-
- 	# # Query on chaincode on peer1.org2, check if the result is 90
- 	# echo "Querying chaincode on peer1.org2..."
- 	# chaincodeQuery 1 2 90
-
 echo
 echo "========== Init chaincode done =========================="
 echo	
+echo "========== Using chaincode start =========================="
+echo
 ## at first we package the chaincode
  	packageChaincode 2 0 $N_ORG $DOMAIN
 
@@ -160,17 +140,6 @@ echo
  	## approve the definition for org0
  	approveForMyOrg 2 0 $N_ORG $DOMAIN
 
- 	## check whether the chaincode definition is ready to be committed
-     ## expect org0 to have approved and org2 not to
- 	#checkCommitReadiness 1 0 1 $DOMAIN "\"Org0MSP\": true"
-
- 	# ## now approve also for org2
- 	# approveForMyOrg 1 0 2 
-
- 	# ## check whether the chaincode definition is ready to be committed
- 	# ## expect them both to have approved
- 	# checkCommitReadiness 1 0 1 $DOMAIN "\"Org0MSP\": true"
-
  	## now that we know for sure both orgs have approved, commit the definition
  	commitChaincodeDefinition 2 0 $N_ORG $DOMAIN
 
@@ -182,7 +151,9 @@ echo
  	# Query chaincode on peer0.org0
  	echo "Querying chaincode on peer0.org0..."
  	chaincodeQuery 0 $N_ORG $DOMAIN
-
+	
+echo
+echo "=============== Using chaincode done =================== "
 echo
 echo "========= All GOOD, BYFN execution completed =========== "
 echo

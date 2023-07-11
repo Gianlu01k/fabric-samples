@@ -11,7 +11,7 @@ const path = require('path');
 async function main() {
     try {
         // load the network configuration
-        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org0.master.com', 'connection-org0.json');
         let ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Create a new file system based wallet for managing identities.
@@ -40,7 +40,7 @@ async function main() {
         // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR12', 'Dave')
-        await contract.submitTransaction('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom');
+        await contract.submitTransaction('createCar');
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.
