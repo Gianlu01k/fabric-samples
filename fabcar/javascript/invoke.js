@@ -3,7 +3,8 @@
  */
 
 'use strict';
-
+const  data = require('./data.json');
+console.log(data)
 const { Gateway, Wallets } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +12,7 @@ const path = require('path');
 async function main() {
     try {
         // load the network configuration
-        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org0.master.com', 'connection-org0.json');
+        const ccpPath = path.resolve(__dirname, '..', '..', 'first-network',  'connection-org0.json');
         let ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Create a new file system based wallet for managing identities.
@@ -35,12 +36,12 @@ async function main() {
         const network = await gateway.getNetwork('mychannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('fabcar');
+        const contract = network.getContract('fabprod');
 
         // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR12', 'Dave')
-        await contract.submitTransaction('createCar');
+        await contract.submitTransaction('createProd', 'PROD0', JSON.stringify(data));
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.

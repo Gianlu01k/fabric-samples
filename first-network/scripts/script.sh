@@ -124,36 +124,36 @@ echo "========== Init chaincode start =========================="
 
 echo
 echo "========== Init chaincode done =========================="
-echo	
-echo "========== Using chaincode start =========================="
-echo
-## at first we package the chaincode
- 	packageChaincode 2 0 $N_ORG $DOMAIN
+# echo	
+# echo "========== Using chaincode start =========================="
+# echo
+# ## at first we package the chaincode
+#  	packageChaincode 2 0 $N_ORG $DOMAIN
 
- 	## Install chaincode on peer0.org0
- 	echo "Installing chaincode on peer0.org0..."
- 	installChaincode 2 0 $N_ORG $DOMAIN
+#  	## Install chaincode on peer0.org0
+#  	echo "Installing chaincode on peer0.org0..."
+#  	installChaincode 2 0 $N_ORG $DOMAIN
 
- 	## query whether the chaincode is installed
- 	queryInstalled 2 0 $N_ORG $DOMAIN
+#  	## query whether the chaincode is installed
+#  	queryInstalled 2 0 $N_ORG $DOMAIN
 
- 	## approve the definition for org0
- 	approveForMyOrg 2 0 $N_ORG $DOMAIN
+#  	## approve the definition for org0
+#  	approveForMyOrg 2 0 $N_ORG $DOMAIN
 
- 	## now that we know for sure both orgs have approved, commit the definition
- 	commitChaincodeDefinition 2 0 $N_ORG $DOMAIN
+#  	## now that we know for sure both orgs have approved, commit the definition
+#  	commitChaincodeDefinition 2 0 $N_ORG $DOMAIN
 
- 	## query on both orgs to see that the definition committed successfully
- 	queryCommitted 2 0 $N_ORG $DOMAIN
+#  	## query on both orgs to see that the definition committed successfully
+#  	queryCommitted 2 0 $N_ORG $DOMAIN
  	
- 	# invoke init
- 	chaincodeInvokeCreate 0 $N_ORG $DOMAIN
- 	# Query chaincode on peer0.org0
- 	echo "Querying chaincode on peer0.org0..."
- 	chaincodeQuery 0 $N_ORG $DOMAIN
+#  	# invoke init
+#  	chaincodeInvokeCreate 0 $N_ORG $DOMAIN
+#  	# Query chaincode on peer0.org0
+#  	echo "Querying chaincode on peer0.org0..."
+#  	chaincodeQuery 0 $N_ORG $DOMAIN
 	
-echo
-echo "=============== Using chaincode done =================== "
+# echo
+# echo "=============== Using chaincode done =================== "
 echo
 echo "========= All GOOD, BYFN execution completed =========== "
 echo
