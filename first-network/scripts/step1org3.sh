@@ -21,7 +21,7 @@ TIMEOUT="$7"
 VERBOSE="$8"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
-: ${CC_SRC_LANGUAGE:="go"}
+: ${CC_SRC_LANGUAGE:="javascript"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
@@ -33,7 +33,7 @@ if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
 elif [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
 	CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
-	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/javascript/"
+	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/fabprod/javascript/"
 elif [ "$CC_SRC_LANGUAGE" = "java" ]; then
 	CC_RUNTIME_LANGUAGE=java
 	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/java/"

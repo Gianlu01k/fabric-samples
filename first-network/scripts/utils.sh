@@ -152,25 +152,26 @@ approveForMyOrg() {
   PEER=$2
   ORG=$3
   DOMAIN=$4
+  SEQ=$5
   setGlobals $PEER $ORG $DOMAIN
   if [ "$VERSION" -lt 2 ]; then
     if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
       set -x
-      peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+      peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${SEQ} --waitForEvent >&log.txt
       set +x
     else
       set -x
-      peer lifecycle chaincode approveformyorg --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+      peer lifecycle chaincode approveformyorg --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --init-required --package-id ${PACKAGE_ID} --sequence ${SEQ} --waitForEvent >&log.txt
       set +x
     fi
   else
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
       set -x
-      peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+      peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --package-id ${PACKAGE_ID} --sequence ${SEQ} --waitForEvent >&log.txt
       set +x
     else
       set -x
-      peer lifecycle chaincode approveformyorg --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --package-id ${PACKAGE_ID} --sequence ${VERSION} --waitForEvent >&log.txt
+      peer lifecycle chaincode approveformyorg --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod --version ${VERSION} --package-id ${PACKAGE_ID} --sequence ${SEQ} --waitForEvent >&log.txt
       set +x
     fi
   fi
@@ -189,6 +190,7 @@ commitChaincodeDefinition() {
   PEER=$2
   ORG=$3
   DOMAIN=$4
+  SEQ=$5
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
@@ -198,24 +200,24 @@ commitChaincodeDefinition() {
     if [ "$VERSION" -lt 2 ]; then
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQ} --init-required >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --init-required >&log.txt
+    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQ} --init-required >&log.txt
     res=$?
     set +x
   fi
   else
   if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
     set -x
-    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION}  >&log.txt
+    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQ}  >&log.txt
     res=$?
     set +x
   else
     set -x
-    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION}  >&log.txt
+    peer lifecycle chaincode commit -o orderer.${DOMAIN}.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQ}  >&log.txt
     res=$?
     set +x
   fi
@@ -232,8 +234,9 @@ checkCommitReadiness() {
   PEER=$2
   ORG=$3
   DOMAIN=$4
+  SEQ=$6
   shift 3
-  setGlobals $PEER $ORG $DOMAIN
+  setGlobals $PEER $ORG
   echo "===================== Checking the commit readiness of the chaincode definition on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
   local rc=1
   local starttime=$(date +%s)
@@ -246,15 +249,12 @@ checkCommitReadiness() {
     sleep $DELAY
     echo "Attempting to check the commit readiness of the chaincode definition on peer${PEER}.org${ORG} ...$(($(date +%s) - starttime)) secs"
     set -x
-    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${VERSION} --output json --init-required >&log.txt
+    peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME --name fabprod $PEER_CONN_PARMS --version ${VERSION} --sequence ${SEQ} --output json --init-required >&log.txt
     res=$?
     set +x
     test $res -eq 0 || continue
     let rc=0
-    for var in "$@"
-    do
-        grep "$var" log.txt &>/dev/null || let rc=1
-    done
+    grep "$5" log.txt &>/dev/null || let rc=1
   done
   echo
   cat log.txt
@@ -267,7 +267,6 @@ checkCommitReadiness() {
     exit 1
   fi
 }
-
 # queryCommitted VERSION PEER ORG
 queryCommitted() {
   VERSION=$1
@@ -309,9 +308,8 @@ queryCommitted() {
 chaincodeQuery() {
   PEER=$1
   ORG=$2
-  DOMAIN=$4
+  DOMAIN=$3
   setGlobals $PEER $ORG $DOMAIN
-  EXPECTED_RESULT=$3
     echo "===================== Querying on peer0.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
 	local rc=1
 	local COUNTER=1

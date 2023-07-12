@@ -12,7 +12,7 @@ const path = require('path');
 async function main() {
     try {
         // load the network configuration
-        const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org0.json');
+        const ccpPath = path.resolve(__dirname, '..', '..', 'first-network', 'connection-org1.json');
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Create a new CA client for interacting with the CA.
@@ -39,10 +39,10 @@ async function main() {
                 certificate: enrollment.certificate,
                 privateKey: enrollment.key.toBytes(),
             },
-            mspId: 'Org0MSP',
+            mspId: 'Org1MSP',
             type: 'X.509',
         };
-        await wallet.put('admin', x509Identity);
+        await wallet.put('admin1', x509Identity);
         console.log('Successfully enrolled admin user "admin" and imported it into the wallet');
 
     } catch (error) {

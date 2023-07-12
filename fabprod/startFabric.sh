@@ -28,15 +28,16 @@ rm -rf typescript/wallet/*
 
 # launch network; create channel and join peer to channel
 pushd ../first-network
-sudo bash byfn.sh up -o 0 -r 2 master
+sudo bash byfn.sh up -o 0 -r 2 -a
+sudo bash eyfn.sh up slave0
 popd
 
 cat <<EOF
 
 Total setup execution time : $(($(date +%s) - starttime)) secs ...
 
-Next, use the FabCar applications to interact with the deployed FabCar contract.
-The FabCar applications are available in multiple programming languages.
+Next, use the FabProd applications to interact with the deployed FabProd contract.
+The FabProd applications are available in multiple programming languages.
 Follow the instructions for the programming language of your choice:
 
 JavaScript:
@@ -49,16 +50,16 @@ JavaScript:
 
   Then run the following applications to enroll the admin user, and register a new user
   called appUser which will be used by the other applications to interact with the deployed
-  FabCar contract:
+  FabProd contract:
     node enrollAdmin
     node registerUser
 
   You can run the invoke application as follows. By default, the invoke application will
-  create a new car, but you can update the application to submit other transactions:
+  create a new product, but you can update the application to submit other transactions:
     node invoke
 
   You can run the query application as follows. By default, the query application will
-  return all cars, but you can update the application to evaluate other transactions:
+  return all products, but you can update the application to evaluate other transactions:
     node query
 
 TypeScript:
@@ -74,16 +75,16 @@ TypeScript:
 
   Then run the following applications to enroll the admin user, and register a new user
   called appUser which will be used by the other applications to interact with the deployed
-  FabCar contract:
+  FabProd contract:
     node dist/enrollAdmin
     node dist/registerUser
 
   You can run the invoke application as follows. By default, the invoke application will
-  create a new car, but you can update the application to submit other transactions:
+  create a new product, but you can update the application to submit other transactions:
     node dist/invoke
 
   You can run the query application as follows. By default, the query application will
-  return all cars, but you can update the application to evaluate other transactions:
+  return all products, but you can update the application to evaluate other transactions:
     node dist/query
 
 Java:
@@ -96,9 +97,9 @@ Java:
 
   The test will invoke the sample client app which perform the following:
     - Enroll admin and appUser and import them into the wallet (if they don't already exist there)
-    - Submit a transaction to create a new car
-    - Evaluate a transaction (query) to return details of this car
-    - Submit a transaction to change the owner of this car
-    - Evaluate a transaction (query) to return the updated details of this car
+    - Submit a transaction to create a new product
+    - Evaluate a transaction (query) to return details of this product
+    - Submit a transaction to change the owner of this product
+    - Evaluate a transaction (query) to return the updated details of this product
 
 EOF

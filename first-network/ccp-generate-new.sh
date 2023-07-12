@@ -37,8 +37,8 @@ P0PORT=$((7051+2000*$N_ORG))
 P1PORT=$((P0PORT+1000))
 CAPORT=7054
 echo $PWD
-PEERPEM="crypto-config/peerOrganizations/org$N_ORG.${DOMAIN}.com/tlsca/tlsca.org$N_ORG.${DOMAIN}.com-cert.pem"
-CAPEM="crypto-config/peerOrganizations/org$N_ORG.${DOMAIN}.com/ca/ca.org$N_ORG.${DOMAIN}.com-cert.pem"
+PEERPEM="org3-artifacts/crypto-config/peerOrganizations/org$N_ORG.${DOMAIN}.com/tlsca/tlsca.org$N_ORG.${DOMAIN}.com-cert.pem"
+CAPEM="org3-artifacts/crypto-config/peerOrganizations/org$N_ORG.${DOMAIN}.com/ca/ca.org$N_ORG.${DOMAIN}.com-cert.pem"
 
 echo "$(json_ccp $N_ORG $P0PORT $P1PORT $CAPORT $PEERPEM $CAPEM)" > "connection-org$N_ORG.json"
 echo "$(yaml_ccp $N_ORG $P0PORT $P1PORT $CAPORT $PEERPEM $CAPEM)" > "connection-org$N_ORG.yaml"

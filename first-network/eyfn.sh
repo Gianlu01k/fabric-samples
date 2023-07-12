@@ -98,7 +98,7 @@ function networkUp () {
     generateCerts
     generateChannelArtifacts
     createConfigTx
-
+   ./ccp-generate-new.sh $NEXT_ORG $DOMAIN
   NEXT_PORT=$((NEXT_PORT))
   NEXT_PORTCHAIN=$((NEXT_PORT+1))
   NEXT_PORTCHAIN1=$((NEXT_PORT1+1))
@@ -119,7 +119,7 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org$N_ORG peers join network ##################"
   echo "###############################################################"
-  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $DOMAIN $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG 
+  docker exec Org${NEXT_ORG}cli ./scripts/step2org3.sh $CHANNEL_NAME $DOMAIN $CLI_DELAY $CC_SRC_LANGUAGE $CLI_TIMEOUT $VERBOSE $NEXT_ORG $NEXT_PORT
 
   echo $((NEXT_ORG+1)) > org-data.txt
 
@@ -193,6 +193,7 @@ function generateCerts (){
      echo "Failed to generate certificates..."
      exit 1
    fi
+   
   )
   echo
 }
@@ -254,7 +255,7 @@ COMPOSE_FILE_COUCH_ORG3=docker-compose-couch-org3.yaml
 # two additional etcd/raft orderers
 COMPOSE_FILE_RAFT2=docker-compose-etcdraft2.yaml
 # use go as the default language for chaincode
-CC_SRC_LANGUAGE=go
+CC_SRC_LANGUAGE=javascript
 # default image tag
 IMAGETAG="latest"
 

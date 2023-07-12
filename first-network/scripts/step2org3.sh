@@ -23,7 +23,7 @@ VERBOSE="$6"
 N_ORG="$7"
 : ${CHANNEL_NAME:="mychannel"}
 : ${DELAY:="3"}
-: ${CC_SRC_LANGUAGE:="go"}
+: ${CC_SRC_LANGUAGE:="javascript"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
 CC_SRC_LANGUAGE=`echo "$CC_SRC_LANGUAGE" | tr [:upper:] [:lower:]`
@@ -36,7 +36,7 @@ if [ "$CC_SRC_LANGUAGE" = "go" -o "$CC_SRC_LANGUAGE" = "golang" ]; then
 	CC_SRC_PATH="github.com/hyperledger/fabric-samples/chaincode/abstore/go/"
 elif [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
 	CC_RUNTIME_LANGUAGE=node # chaincode runtime language is node.js
-	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/javascript/"
+	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/fabprod/javascript/"
 elif [ "$CC_SRC_LANGUAGE" = "java" ]; then
 	CC_RUNTIME_LANGUAGE=java
 	CC_SRC_PATH="/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abstore/java/"
@@ -60,24 +60,25 @@ verifyResult $res "Fetching config block from orderer has Failed"
 joinChannelWithRetry 0 $N_ORG $DOMAIN
 echo "===================== peer0.org$N_ORG joined channel '$CHANNEL_NAME' ===================== "
 
-#  ## at first we package the chaincode
-#  packageChaincode 0 0 $N_ORG $DOMAIN
+ 	## at first we package the chaincode
+ 	packageChaincode 1 0 $N_ORG $DOMAIN
 
-#  echo "Installing chaincode on peer0.org$N_ORG..."
-#  installChaincode 0 $N_ORG $DOMAIN
+ 	## Install chaincode on peer0.org0
+ 	echo "Installing chaincode on peer0.org$N_ORG..."
+ 	installChaincode 1 0 $N_ORG $DOMAIN
 
-#  ## query whether the chaincode is installed
-#  queryInstalled 0 $N_ORG $DOMAIN
+ 	## query whether the chaincode is installed
+ 	queryInstalled 1 0 $N_ORG $DOMAIN
 
-#  ## sanity check: expect the chaincode to be already committed
-#  queryCommitted 1 0 $N_ORG $DOMAIN
+	queryCommitted 1 0 $N_ORG $DOMAIN
+ 	## approve the definition for org0
+	approveForMyOrg 1 0 $N_ORG $DOMAIN 1
 
-#  ## approve it for our org, so that our peers know what package to invoke
-#  approveForMyOrg 1 0 $N_ORG $DOMAIN
-
-#  # Query on chaincode on peer0.org$N_ORG, check if the result is 90
-#  echo "Querying chaincode on peer0.org$N_ORG..."
-#  chaincodeQuery 0 $N_ORG 100 $DOMAIN
+ 	## now that we know for sure both orgs have approved, commit the definition
+	chaincodeQuery 0 $N_ORG $DOMAIN
+ 	## query on both orgs to see that the definition committed successfully
+ 	
+ 	
 
 echo
 echo "========= Finished adding Org$N_ORG to your first network! ========= "

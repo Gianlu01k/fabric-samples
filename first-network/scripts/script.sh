@@ -108,10 +108,10 @@ echo "========== Init chaincode start =========================="
  	queryInstalled 1 0 $N_ORG $DOMAIN
 
  	## approve the definition for org0
- 	approveForMyOrg 1 0 $N_ORG $DOMAIN
-
+ 	approveForMyOrg 1 0 $N_ORG $DOMAIN 1
+    checkCommitReadiness 1 0 $N_ORG $DOMAIN "\"Org0MSP\": true" 1
  	## now that we know for sure both orgs have approved, commit the definition
- 	commitChaincodeDefinition 1 0 $N_ORG $DOMAIN
+ 	commitChaincodeDefinition 1 0 $N_ORG $DOMAIN 1
 
  	## query on both orgs to see that the definition committed successfully
  	queryCommitted 1 0 $N_ORG $DOMAIN
