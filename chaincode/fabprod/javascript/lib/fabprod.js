@@ -57,19 +57,15 @@ class FabProd extends Contract {
         return JSON.stringify(allResults);
     }
 
-    async editProduct(ctx, obj) {
-        console.info('============= START : editProduct ===========');
-        const prodAsBytes = await ctx.stub.getState(obj.prodNumber); // get the car from chaincode state
-        if (!prodAsBytes || prodAsBytes.length === 0) {
-            throw new Error(`${obj.prodNumber} does not exist`);
-        }
-        console.log(prodAsBytes.toString());
-        const product = JSON.parse(prodAsBytes.toString());
-        product.id = "banano0"
-        //product.obj.section.push(obj.data)
-        await ctx.stub.putState(obj.prodNumber, Buffer.from(JSON.stringify(product)));
-        console.info('============= END : editProduct ===========');
-    }
+    async editProduct(ctx, prodNumber, prod) {
+        console.info('============= START : Edit Product ===========');
+
+        const product = {prod}
+
+        await ctx.stub.putState(prodNumber, Buffer.from(JSON.stringify(product)));
+        console.info('============= END : Edit Product ===========');
+
+}
 
 }
 

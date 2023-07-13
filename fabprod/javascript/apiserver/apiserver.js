@@ -2,7 +2,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser.json());
-console.log('Connesso al server')
 
 // Setting for Hyperledger Fabric
 const { Gateway, Wallets } = require('fabric-network');
@@ -25,7 +24,41 @@ let ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
 let key=0
 
-app.get('/api/queryallprods', async function (req, res) {
+app.get('/api', (req, res)=>{
+    console.log(req.query)
+    let par = Object.keys(req.query)
+    if(par[0]==='all'){
+        res.redirect('/queryallprods')
+    }else{
+        if(!isNaN(par[0])){
+            let key='PROD'+par[0]
+            res.redirect('/query/'+key)
+        }else{
+            res.statusCode(404)
+        }
+    }
+})
+
+app.post('/api', (req,res)=>{
+    let par = Object.keys(req.query)
+    if(!isNaN(par[0])){
+        let key='PROD'+par[0]
+        const body = req.body;
+        let encoded = encodeURIComponent(JSON.stringify(body))
+        res.redirect('/editproduct/'+encoded+'/'+key)
+    }else{
+        if(par[0]==='new')
+        {const body = req.body;
+            let encoded = encodeURIComponent(JSON.stringify(body))
+        res.redirect('/addproduct/'+encoded)
+    }else{res.sendStatus(400)}}
+}
+)
+
+
+
+
+app.get('/queryallprods', async function (req, res) {
     try {
 
         // Create a new file system based wallet for managing identities.
@@ -63,7 +96,7 @@ app.get('/api/queryallprods', async function (req, res) {
 });
 
 
-app.get('/api/query/:prod_index', async function (req, res) {
+app.get('/query/:prod_index', async function (req, res) {
     try {
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
@@ -98,10 +131,9 @@ app.get('/api/query/:prod_index', async function (req, res) {
     }
 });
 
-app.post('/api/addproduct', async function (req, res) {
+app.get('/addproduct/:body', async function (req, res) {
     try {
 
-    
         // Create a new file system based wallet for managing identities.
         const walletPath = path.join(process.cwd(), 'wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
@@ -122,9 +154,9 @@ app.post('/api/addproduct', async function (req, res) {
 
         // Get the contract from the network.
         const contract = network.getContract('fabprod');
-        console.log(req.body)
         // Submit the specified transaction.
-        await contract.submitTransaction('createProd', 'PROD'+key, JSON.stringify(req.body));
+        const decoded=JSON.parse(decodeURIComponent(req.params.body))
+        await contract.submitTransaction('createProd', 'PROD5', JSON.stringify(decoded));
         console.log('Transaction has been submitted');
         key++
         res.send('Transaction has been submitted');
@@ -138,42 +170,43 @@ app.post('/api/addproduct', async function (req, res) {
     }
 })
 
-//   app.post('/api/editproduct/:key/:section', async function (req, res) {
-//       try {
+app.get('/editproduct/:body/:key', async function (req, res) {
+    try {
+   
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
 
-//         // Create a new file system based wallet for managing identities.
-//         const walletPath = path.join(process.cwd(), 'wallet');
-//         const wallet = await Wallets.newFileSystemWallet(walletPath);
-//         console.log(`Wallet path: ${walletPath}`);
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get(app_user);
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: app_user, discovery: { enabled: true, asLocalhost: true } });
 
-//         // Check to see if we've already enrolled the user.
-//         const identity = await wallet.get(app_user);
-//         if (!identity) {
-//             console.log('An identity for the user "appUser" does not exist in the wallet');
-//             console.log('Run the registerUser.js application before retrying');
-//             return;
-//         }
-//         const gateway = new Gateway();
-//         await gateway.connect(ccp, { wallet, identity: app_user, discovery: { enabled: true, asLocalhost: true } });
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
 
-//         // Get the network (channel) our contract is deployed to.
-//         const network = await gateway.getNetwork('mychannel');
+        // Get the contract from the network.
+        const contract = network.getContract('fabprod');
+        // Submit the specified transaction.
+        const decoded=JSON.parse(decodeURIComponent(req.params.body))
+        console.log(decoded)
+        await contract.submitTransaction('editProduct', 'PROD0', JSON.stringify(decoded));
+        console.log('Transaction has been submitted');
+        res.send('Transaction has been submitted');
 
-//         // Get the contract from the network.
-//         const contract = network.getContract('fabprod');
-//           // Submit the specified transaction.
-//           obj = {prodNumber : req.params.key, data: req.body, section:req.params.section}
-//           console.log(obj)
-//           await contract.submitTransaction('editProduct', obj);
-//           console.log('Transaction has been submitted');
-//           res.send('Transaction has been submitted');
+        // Disconnect from the gateway.
+        await gateway.disconnect();
 
-//           // Disconnect from the gateway.
-//           await gateway.disconnect();
-//       } catch (error) {
-//           console.error(`Failed to submit transaction: ${error}`);
-//           process.exit(1);
-//       }	
-//   })
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        process.exit(1);
+    }
+})
 
-app.listen(4000);
+app.listen(5021),console.log('Connesso al server');
