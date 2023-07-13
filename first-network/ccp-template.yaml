@@ -13,7 +13,7 @@ organizations:
     peers:
     - peer0.org${ORG}.${DOMAIN}.com
     certificateAuthorities:
-    - ca.org${ORG}.${DOMAIN}.com
+    - ca.org0.master.com
 peers:
   peer0.org${ORG}.${DOMAIN}.com:
     url: grpcs://localhost:${P0PORT}
@@ -24,9 +24,9 @@ peers:
       ssl-target-name-override: peer0.org${ORG}.${DOMAIN}.com
       hostnameOverride: peer0.org${ORG}.${DOMAIN}.com
 certificateAuthorities:
-  ca.org${ORG}.${DOMAIN}.com:
+  ca.org0.master.com:
     url: https://localhost:${CAPORT}
-    caName: ca-org${ORG}
+    caName: ca-org0
     tlsCACerts:
       pem: |
         ${CAPEM}

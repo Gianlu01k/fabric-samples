@@ -215,7 +215,7 @@ function networkUp() {
     sed -e "s/\${DOMAIN}/$DOMAIN/g" docker-compose-ca-template.yaml > docker-compose-ca.yaml
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_CA}"
     export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org0.${DOMAIN}.com/ca && ls *_sk)
-    export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/Org0.${DOMAIN}.com/ca && ls *_sk)
+    # export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/Org0.${DOMAIN}.com/ca && ls *_sk)
   fi
   if [ "${IF_COUCHDB}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f ${COMPOSE_FILE_COUCH}"
