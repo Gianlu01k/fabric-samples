@@ -8,7 +8,7 @@ To execute the first network:
 
 #git checkout v2.1.0-hlf
 
-cd first-network
+cd tracecoop-net
 
 ./byfn.sh down #to remove previous containers from docker
 

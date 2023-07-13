@@ -27,7 +27,7 @@ rm -rf java/wallet/*
 rm -rf typescript/wallet/*
 
 # launch network; create channel and join peer to channel
-pushd ../first-network
+pushd ../tracecoop-net
 sudo bash byfn.sh up -o 0 -r 2 -a
 sudo bash eyfn.sh up slave0
 popd

@@ -8,24 +8,17 @@ const { Gateway, Wallets } = require('fabric-network');
 const path = require('path');
 const fs = require('fs');
 
-// fs.cp('/../', './dest/info.txt', (err) => {
-//     if (err) {
-//       console.error(err);
-//     }
-//   });
-
 const org=1
 const admin_name='admin'+org
 const app_user='addUser'+org
 const connection='connection-org'+org+'.json'
 
-const ccpPath = path.resolve(__dirname, '..', '..', '..', 'first-network', connection);
+const ccpPath = path.resolve(__dirname, '..', '..', '..', 'tracecoop-net', connection);
 let ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
 let key=0
 
 app.get('/api', (req, res)=>{
-    console.log(req.query)
     let par = Object.keys(req.query)
     if(par[0]==='all'){
         res.redirect('/queryallprods')
@@ -34,7 +27,7 @@ app.get('/api', (req, res)=>{
             let key='PROD'+par[0]
             res.redirect('/query/'+key)
         }else{
-            res.statusCode(404)
+            res.sendStatus(404)
         }
     }
 })
@@ -156,7 +149,7 @@ app.get('/addproduct/:body', async function (req, res) {
         const contract = network.getContract('fabprod');
         // Submit the specified transaction.
         const decoded=JSON.parse(decodeURIComponent(req.params.body))
-        await contract.submitTransaction('createProd', 'PROD5', JSON.stringify(decoded));
+        await contract.submitTransaction('createProd', 'PROD0', JSON.stringify(decoded));
         console.log('Transaction has been submitted');
         key++
         res.send('Transaction has been submitted');
@@ -209,4 +202,4 @@ app.get('/editproduct/:body/:key', async function (req, res) {
     }
 })
 
-app.listen(5021),console.log('Connesso al server');
+app.listen(4124),console.log('Connesso al server');

@@ -1,1 +1,0 @@
-/home/gianluigi/tesi/real/fabric-samples/first-network/scripts/utils.sh: line 104: peer: command not found
