@@ -119,8 +119,7 @@ app.get('/query/:prod_index', async function (req, res) {
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
-        res.status(500).json({error: error});
-        process.exit(1);
+        res.status(404).json({error: "Prodotto inesistente"});
     }
 });
 
@@ -202,4 +201,4 @@ app.get('/editproduct/:body/:key', async function (req, res) {
     }
 })
 
-app.listen(4124),console.log('Connesso al server');
+app.listen(4001),console.log('Connesso al server');
